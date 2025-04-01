@@ -1,0 +1,10 @@
+sequenceDiagram
+
+Browser-->Server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+activate Server
+Server-->Browser: {"message":"note created"}
+deactivate Server
+
+note right of Browser: Browser handles the form's submit event
+note right of Browser: Browser recieves an answer with 201 code
+note right of Browser: Browser renders the list of notes on the page and sends the new note to the server

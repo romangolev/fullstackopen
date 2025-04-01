@@ -1,0 +1,30 @@
+sequenceDiagram
+
+Browser->>Server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note
+activate Server
+Server-->>Browser: 302 Found
+deactivate Server
+
+Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+activate Server
+Server-->>Browser: HTML Document
+deactivate Server
+
+Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+activate Server
+Server-->>Browser:  CSS File
+deactivate Server
+
+Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+activate Server
+Server-->>Browser: JS File
+deactivate Server
+
+Note right of Browser: Browser starts executing the JS file to fetch JSON from the server
+
+Browser->>Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+activate Server
+Server-->Browser: JSON data file
+deactivate Server
+
+Note right of Browser: Browser executes the callback function that renders the notes
