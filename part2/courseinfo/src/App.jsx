@@ -1,3 +1,5 @@
+import Course from "./Course"
+
 const App = () => {
 	const courses = [
     {
@@ -44,47 +46,13 @@ const App = () => {
     }
   ]
 
-	return (courses.map(course =>  <Course key={course.id} course={course} />))
-}
-
-const Course = (props) => {
 	return (
-	<div>
-		<h1>Web development curriculum</h1>
-		<Header course={props.course} />
-		<Content course={props.course} />
-		<Total course={props.course} />
-	</div>
+		<>
+			<h1>Web development curriculum</h1>
+			{courses.map(course => <Course key={course.id} course={course} />)}
+		</>
 	)
 }
 
-const Content = (props) => {
-	return (
-	<>
-		{props.course.parts.map(i => <Part key={i.id} part={i} />)}
-	</>
-	)
-}
-
-const Part = (props) => {
-	return (
-		<p>
-			{props.part.name} {props.part.exercises}
-		 </p>
-	)
-}
-
-const Header = (props) => {
-	return (
-      <h2>{props.course.name}</h2>
-	)
-}
-
-const Total = (props) => {
-	const number = props.course.parts.reduce((sum, part) => sum + part.exercises, 0)
-	return (
-      <b>Total of exercises {number}</b>
-	)
-}
 
 export default App
