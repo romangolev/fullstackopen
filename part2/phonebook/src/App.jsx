@@ -9,14 +9,24 @@ const App = () => {
 	]) 
 	const [newName, setNewName] = useState('')
 	
+	const checkName = () => {
+		const find = persons.find(person => person.name === newName)
+		return find
+	}
+
 	const addNote = (event) => {
 		event.preventDefault()
-		const newObj = {
-			name: newName,
-			id: String(persons.length + 1)
+		const newarr = persons.filter(checkName)
+		if (newarr.length > 0){
+			alert(`${newName} is already added to phonebook`)
+		} else {
+			const newObj = {
+				name: newName,
+				id: String(persons.length + 1)
+			}
+			setPersons(persons.concat(newObj))
+			setNewName('')
 		}
-		setPersons(persons.concat(newObj))
-		setNewName('')
 	}
 	const handleNoteChange = (event) => {
 		setNewName(event.target.value)
