@@ -41,16 +41,22 @@ const App = () => {
 	const [newNumber, setNewNumber] = useState('')
 	const [newSearch, setNewSearch] = useState('')
 	
-	const checkName = () => {
-		const find = persons.find(person => person.name === newName)
-		return find
-	}
-
 	const addNote = (event) => {
 		event.preventDefault()
-		const newarr = persons.filter(checkName)
+		const newarr = persons.filter(person => person.name === newName)
+		console.log(newarr)
 		if (newarr.length > 0){
-			alert(`${newName} is already added to phonebook`)
+			const res = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+			console.log(newarr)
+			if (res === true){
+				const newObj = {
+					name: newName,
+					number: newNumber
+				}
+				setNewName('')
+				setNewNumber('')
+				perService.update(newarr[0].id, newObj).then(() => fillPersons())
+			}
 		} else {
 			const newObj = {
 				name: newName,
