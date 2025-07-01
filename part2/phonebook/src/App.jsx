@@ -8,7 +8,7 @@ const Persons = (props) => {
 	
 	return(
 		<>
-			{filtered.map(person => <p>{person.name} {person.number}</p> )}
+			{filtered.map(person => <p key={person.id}>{person.name} {person.number} <button onClick={() => props.onDelete(person)}>delete</button></p>  )}
 		</>
 	) 
 }
@@ -56,11 +56,9 @@ const App = () => {
 				name: newName,
 				number: newNumber
 			}
-			setPersons(persons.concat(newObj))
 			setNewName('')
 			setNewNumber('')
-			id: String(persons.length + 1)
-			perService.create(newObj)
+			perService.create(newObj).then(() => fillPersons())
 		}
 	}
 
@@ -75,14 +73,25 @@ const App = () => {
 	const handleSearchChange = (event) => {
 		setNewSearch(event.target.value)
 	}
+	
+	const handleDelete = (person) => {
+		const res = window.confirm(`Delete ${person.name} ?`)
+		if (res === true){
+			perService.deleteObj(person.id)
+			setPersons(persons.filter(prs => person.id !== prs.id))
+		}
 
+	}
+
+	const fillPersons = () => {
+		perService.getAll()
+			.then(data => {
+				setPersons(data)
+			})
+	}
 	useEffect(() => {
 		console.log('effect')
-		perService.getAll()
-			.then(response => {
-				console.log('promise fullfilled')
-				setPersons(response.data)
-			})
+		fillPersons()
 	}, [])
 
 	return (
@@ -96,7 +105,9 @@ const App = () => {
 					onNumberChange={handleNumberChange}
 					addNote={addNote}/>
 		<h3>Numbers</h3>
-		<Persons persons={persons} search={newSearch} />
+		<Persons persons={persons}
+				 search={newSearch}
+				 onDelete={handleDelete} />
 	</div>
 	)
 }
