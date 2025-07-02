@@ -3,13 +3,13 @@ import axios from 'axios'
 import perService from './services/persons'
 import './index.css'
 
-const Notification = ({message}) => {
-	if (message === null){
+const Notification = ({notification}) => {
+	if (notification === null){
 		return null
 	}
 	return (
-	<div className='notification'>
-		{message}
+	<div className={notification.type}>
+		{notification.message}
 	</div>
 	)
 }
@@ -66,17 +66,31 @@ const App = () => {
 					name: newName,
 					number: newNumber
 				}
-				showNotification(`Updated ${newName} number in the contacts`)
+				showNotification({
+					message:`Updated ${newName} number in the contacts`,
+					type:'notification'
+				})
 				setNewName('')
 				setNewNumber('')
-				perService.update(newarr[0].id, newObj).then(() => fillPersons())
+				perService
+					.update(newarr[0].id, newObj).then(() => fillPersons())
+					.catch(error => {
+						showNotification({
+							message: `Information of ${newarr[0].name} has already been removed from server`,
+							type: 'error'
+						})
+						fillPersons()
+					})
 			}
 		} else {
 			const newObj = {
 				name: newName,
 				number: newNumber
 			}
-			showNotification(`Added ${newName}`)
+			showNotification({
+				message:`Added ${newName}`,
+				type:'notification'
+			})
 			setNewName('')
 			setNewNumber('')
 			perService.create(newObj).then(() => fillPersons())
@@ -104,8 +118,20 @@ const App = () => {
 		const res = window.confirm(`Delete ${person.name} ?`)
 		if (res === true){
 			perService.deleteObj(person.id)
-			showNotification(`Deleted ${person.name} ftom the contacts`)
-			setPersons(persons.filter(prs => person.id !== prs.id))
+				.then(() => {
+					showNotification({
+						message:`Deleted ${person.name} ftom the contacts`,
+						type:'notification'
+					})
+					setPersons(persons.filter(prs => person.id !== prs.id)) })
+				.catch(() => {
+						showNotification({
+							message: `Information of ${person.name} has already been removed from server`,
+							type: 'error'
+						})
+						fillPersons()	
+				})
+				
 		}
 
 	}
@@ -124,7 +150,7 @@ const App = () => {
 	return (
 	<div>
 		<h2>Phonebook</h2>
-		<Notification message={notificationmsg} />
+		<Notification notification={notificationmsg} />
 		<Filter search={newSearch} onSearchChange={handleSearchChange} />
 		<h3>Add a new</h3>
 		<PersonForm name={newName}
