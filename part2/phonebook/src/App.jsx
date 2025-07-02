@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import perService from './services/persons'
+import './index.css'
+
+const Notification = ({message}) => {
+	if (message === null){
+		return null
+	}
+	return (
+	<div className='notification'>
+		{message}
+	</div>
+	)
+}
 
 const Persons = (props) => {
 	const filtered = props.persons.filter(person => 
@@ -40,7 +52,8 @@ const App = () => {
 	const [newName, setNewName] = useState('')
 	const [newNumber, setNewNumber] = useState('')
 	const [newSearch, setNewSearch] = useState('')
-	
+	const [notificationmsg, setNotificationmsg] = useState(null)
+
 	const addNote = (event) => {
 		event.preventDefault()
 		const newarr = persons.filter(person => person.name === newName)
@@ -53,6 +66,7 @@ const App = () => {
 					name: newName,
 					number: newNumber
 				}
+				showNotification(`Updated ${newName} number in the contacts`)
 				setNewName('')
 				setNewNumber('')
 				perService.update(newarr[0].id, newObj).then(() => fillPersons())
@@ -62,10 +76,16 @@ const App = () => {
 				name: newName,
 				number: newNumber
 			}
+			showNotification(`Added ${newName}`)
 			setNewName('')
 			setNewNumber('')
 			perService.create(newObj).then(() => fillPersons())
 		}
+	}
+
+	const showNotification = (msg) => {
+		setNotificationmsg(msg)
+		setTimeout(() => {setNotificationmsg(null)}, 5000)
 	}
 
 	const handleNameChange = (event) => {
@@ -84,6 +104,7 @@ const App = () => {
 		const res = window.confirm(`Delete ${person.name} ?`)
 		if (res === true){
 			perService.deleteObj(person.id)
+			showNotification(`Deleted ${person.name} ftom the contacts`)
 			setPersons(persons.filter(prs => person.id !== prs.id))
 		}
 
@@ -103,6 +124,7 @@ const App = () => {
 	return (
 	<div>
 		<h2>Phonebook</h2>
+		<Notification message={notificationmsg} />
 		<Filter search={newSearch} onSearchChange={handleSearchChange} />
 		<h3>Add a new</h3>
 		<PersonForm name={newName}
