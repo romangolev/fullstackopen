@@ -7,7 +7,7 @@ const getAll = () => {
 }
 
 const getSpecific = (name) => {
-	const req = axios.get(`${baseUrl}/${name}`)
+	const req = axios.get(`${baseUrl}/name/${name}`)
 	return req.then(res => res.data)
 }
 
