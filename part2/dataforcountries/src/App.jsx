@@ -35,13 +35,16 @@ const Country = ({name, data}) => {
 	}
 }
 
-const SearchResult = ({results}) => {
+const SearchResult = ({results, onShowClick}) => {
 	const [countryData, setCountryData] = useState(null)
+
+	const queryCountryData = (name) => {
+		return countriesService.getSpecific(name)
+	}
 	
 	useEffect(() => {
 		if (results !== null && results.length === 1){
-			const data = countriesService.getSpecific(results[0].toLowerCase())
-			data.then(val => setCountryData(val))
+			queryCountryData(results[0].toLowerCase()).then(val => setCountryData(val))
 		} else {
 			setCountryData(null)
 		}
@@ -60,7 +63,11 @@ const SearchResult = ({results}) => {
 	} else {
 		return (
 		<div>
-			{results.map(elem => <p key={elem}>{`${elem}`}</p>)}
+			{results.map(elem => {
+				return (
+					<p key={elem}>{`${elem} `}<button value={elem} onClick={onShowClick}>Show</button></p>
+				)
+			})}
 		</div>
 		)
 	}
@@ -75,7 +82,9 @@ function App() {
 		setSearch(event.target.value)
 		handleSearch(event.target.value)
 	}
+
 	const handleSearch = (searchValue) => {
+		console.log(searchValue)
 		if (countries === null) {
 			setSearchResult(null)
 		} else {
@@ -88,7 +97,11 @@ function App() {
 			setSearchResult(result)
 		}
 	}
-
+	
+	const handleShowClick = (event) => {
+		setSearch(event.target.value)
+		setSearchResult([event.target.value])
+	}
 
 	useEffect(() => {
 		countriesService.getAll()
@@ -99,8 +112,10 @@ function App() {
 
 	return (
 		<>
-			<SearchBar value={search} onSearchChanged={handleSearchChange} />
-			<SearchResult results={searchResult}/>
+			<SearchBar  value={search}
+						onSearchChanged={handleSearchChange} />
+			<SearchResult results={searchResult}
+						  onShowClick={handleShowClick}/>
 		</>
 	)
 }
