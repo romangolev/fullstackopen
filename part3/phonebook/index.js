@@ -43,6 +43,19 @@ app.get('/api/persons/:uid', (request, response) => {
 	}
 })
 
+app.delete('/api/persons/:uid', (request, response) => {
+	const person = persons.find(elem => elem.id === request.params.uid)
+	console.log(person)
+	if (person){
+		persons = persons.filter(prs => prs.id !== request.params.uid)
+		response.json(person)
+	} else {
+		return response.status(400).send({
+			message: 'Cannot delete a contact that does not exist'
+		})
+	}
+})
+
 app.get('/info', (request, response) => {
 	response.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
 })
