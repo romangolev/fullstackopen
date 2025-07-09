@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
     { 
       "id": "1",
@@ -45,7 +47,6 @@ app.get('/api/persons/:uid', (request, response) => {
 
 app.delete('/api/persons/:uid', (request, response) => {
 	const person = persons.find(elem => elem.id === request.params.uid)
-	console.log(person)
 	if (person){
 		persons = persons.filter(prs => prs.id !== request.params.uid)
 		response.json(person)
@@ -54,6 +55,27 @@ app.delete('/api/persons/:uid', (request, response) => {
 			message: 'Cannot delete a contact that does not exist'
 		})
 	}
+})
+
+app.post('/api/persons', (request, response) => {
+	console.log(request.body)
+	if (!request.body || !request.body.name || !request.body.number){
+		return response.status(400).send({
+			message: 'Name or number is missing'
+		})
+	}
+	if (persons.find(person => person.name === request.body.name)){
+		return response.status(400).send({
+			message: 'Name already exists in phonebook'
+		})
+	}
+	const newPerson = {
+		name: request.body.name,
+		number: request.body.number,
+		id: String(Math.ceil(Math.random()*3000))
+	}
+	persons = persons.concat(newPerson)
+	response.status(201).json(newPerson)
 })
 
 app.get('/info', (request, response) => {
