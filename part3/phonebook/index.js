@@ -66,7 +66,7 @@ app.post('/api/persons', (request, response) => {
 	}
 	if (persons.find(person => person.name === request.body.name)){
 		return response.status(400).send({
-			message: 'Name already exists in phonebook'
+			message: 'Name already exists in phonebook. It should be unique'
 		})
 	}
 	const newPerson = {
