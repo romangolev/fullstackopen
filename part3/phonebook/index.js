@@ -3,7 +3,15 @@ const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
-app.use(morgan('combined'))
+morgan.token('body', function (req, res) {
+	if (req.method === 'POST'){
+		return JSON.stringify(req.body)
+	} else {
+		return ''
+	}
+} )
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
 let persons = [
     { 
       "id": "1",
@@ -59,7 +67,6 @@ app.delete('/api/persons/:uid', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-	console.log(request.body)
 	if (!request.body || !request.body.name || !request.body.number){
 		return response.status(400).send({
 			message: 'Name or number is missing'
