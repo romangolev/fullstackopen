@@ -57,7 +57,6 @@ const App = () => {
 	const addNote = (event) => {
 		event.preventDefault()
 		const newarr = persons.filter(person => person.name === newName)
-		console.log(newarr)
 		if (newarr.length > 0){
 			const res = window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
 			console.log(newarr)
@@ -143,7 +142,6 @@ const App = () => {
 			})
 	}
 	useEffect(() => {
-		console.log('effect')
 		fillPersons()
 	}, [])
 
