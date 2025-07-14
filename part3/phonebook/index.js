@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const Person = require('./models/person')
 
 app.use(express.json())
 app.use(express.static('dist'))
@@ -41,18 +43,22 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-	response.json(persons)
+	Person.find({})
+		.then(persons => {
+			response.json(persons.map(person => person.toJSON()) )
+		})
 })
 
-app.get('/api/persons/:uid', (request, response) => {
-	const elem = persons.filter(el => el.id === request.params.uid)
-	if (elem.length){
-		response.json(elem)
-	} else {
-		return response.status(400).send({
-			message: 'Contact with this id does not exist'
-		})
-	}
+app.get('/api/persons/:id', (request, response) => {
+	Person.findById(request.params.id)
+	.then(person => {
+		if (person){
+			response.json(person.toJSON() )
+		} else {
+			response.status(404).end()
+		}
+	})
+	.catch(error => next(error))
 })
 
 app.delete('/api/persons/:uid', (request, response) => {
@@ -91,7 +97,7 @@ app.get('/info', (request, response) => {
 	response.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`)
 })
