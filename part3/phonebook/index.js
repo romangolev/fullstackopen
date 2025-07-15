@@ -74,23 +74,26 @@ app.delete('/api/persons/:uid', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-	if (!request.body || !request.body.name || !request.body.number){
+	const body = request.body
+	if (!body || !body.name || !body.number){
 		return response.status(400).send({
 			message: 'Name or number is missing'
 		})
 	}
-	if (persons.find(person => person.name === request.body.name)){
-		return response.status(400).send({
-			message: 'Name already exists in phonebook. It should be unique'
-		})
-	}
-	const newPerson = {
-		name: request.body.name,
-		number: request.body.number,
-		id: String(Math.ceil(Math.random()*3000))
-	}
-	persons = persons.concat(newPerson)
-	response.status(201).json(newPerson)
+//	if (persons.find(person => person.name === request.body.name)){
+//		return response.status(400).send({
+//			message: 'Name already exists in phonebook. It should be unique'
+//		})
+//	}
+
+	const person = new Person({
+		name: body.name, 
+		number: body.number,
+	})
+	person.save().then(result => {
+		response.status(201).json(result)
+	})
+
 })
 
 app.get('/info', (request, response) => {
