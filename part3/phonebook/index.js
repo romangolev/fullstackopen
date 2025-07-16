@@ -61,16 +61,12 @@ app.get('/api/persons/:id', (request, response) => {
 	.catch(error => next(error))
 })
 
-app.delete('/api/persons/:uid', (request, response) => {
-	const person = persons.find(elem => elem.id === request.params.uid)
-	if (person){
-		persons = persons.filter(prs => prs.id !== request.params.uid)
-		response.json(person)
-	} else {
-		return response.status(400).send({
-			message: 'Cannot delete a contact that does not exist'
+app.delete('/api/persons/:id', (request, response, next) => {
+	Person.findByIdAndDelete(request.params.id)
+		.then(result => {
+			response.status(204).end()
 		})
-	}
+		.catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
@@ -80,12 +76,6 @@ app.post('/api/persons', (request, response) => {
 			message: 'Name or number is missing'
 		})
 	}
-//	if (persons.find(person => person.name === request.body.name)){
-//		return response.status(400).send({
-//			message: 'Name already exists in phonebook. It should be unique'
-//		})
-//	}
-
 	const person = new Person({
 		name: body.name, 
 		number: body.number,
