@@ -92,6 +92,21 @@ app.post('/api/persons', (request, response, next) => {
 		.catch(error => next(error))
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+	const body = request.body
+
+	const person = ({
+		name: body.name, 
+		number: body.number,
+	})
+
+	Person.findByIdAndUpdate(request.params.id, person, { new: true })
+		.then(updated => {
+			response.json(updated.toJSON())
+		})
+		.catch(error => next(error))
+})
+
 app.get('/info', (request, response) => {
 	response.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
 })
