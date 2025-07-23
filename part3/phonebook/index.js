@@ -15,29 +15,6 @@ morgan.token('body', function (req, res) {
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 app.get('/api/persons', (request, response, next) => {
 	Person.find({})
 		.then(persons => {
@@ -108,7 +85,9 @@ app.put('/api/persons/:id', (request, response, next) => {
 })
 
 app.get('/info', (request, response) => {
-	response.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
+	Person.find({}).then(persons => {
+		response.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
+	})
 })
 
 const errorHandler = (error, request, response, next) => {
