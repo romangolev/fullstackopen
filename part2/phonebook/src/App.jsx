@@ -86,13 +86,24 @@ const App = () => {
 				name: newName,
 				number: newNumber
 			}
-			showNotification({
-				message:`Added ${newName}`,
-				type:'notification'
-			})
 			setNewName('')
 			setNewNumber('')
-			perService.create(newObj).then(() => fillPersons())
+			perService
+				.create(newObj)
+				.then(() => {
+					showNotification({
+						message:`Added ${newName}`,
+						type:'notification'
+					})
+					fillPersons()
+				})
+				.catch(error => {
+					console.log(error.response.data.error)	
+					showNotification({
+						message:`Cannot add a person: ${error.response.data.error}`,
+						type:'error'
+					})
+				})
 		}
 	}
 
