@@ -2,16 +2,8 @@ const { test, describe } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 
-test('dummy returns one', () => {
-  const blogs = []
-
-  const result = listHelper.dummy(blogs)
-  assert.strictEqual(result, 1)
-})
-
-describe('total likes', () => {
-  const listWithOneBlog = [
-    {
+const listWithOneBlog = [
+	{
       _id: '5a422aa71b54a676234d17f8',
       title: 'Go To Statement Considered Harmful',
       author: 'Edsger W. Dijkstra',
@@ -19,8 +11,10 @@ describe('total likes', () => {
       likes: 5,
       __v: 0
     }
-  ]
-	const blogs = [
+]
+
+
+const blogs = [
 	  {
 	    _id: "5a422a851b54a676234d17f7",
 	    title: "React patterns",
@@ -69,7 +63,16 @@ describe('total likes', () => {
 	    likes: 2,
 	    __v: 0
 	  }  
-	]
+]
+
+test('dummy returns one', () => {
+  const blogs = []
+
+  const result = listHelper.dummy(blogs)
+  assert.strictEqual(result, 1)
+})
+
+describe('total likes', () => {
   test('of empty list is zero', () => {
     const result = listHelper.totalLikes([])
     assert.strictEqual(result, 0)
@@ -84,4 +87,19 @@ describe('total likes', () => {
     const result = listHelper.totalLikes(blogs)
     assert.strictEqual(result, 36)
   })
+})
+
+describe('favorite blogs', () => {
+	test('of empty list', () => {
+		const result = listHelper.favoriteBlog({})
+		assert.deepEqual(result, null)
+	})
+	test('of single elem list', () => {
+		const result = listHelper.favoriteBlog(listWithOneBlog)
+		assert.deepStrictEqual(result, listWithOneBlog[0])
+	})
+	test('of all many elems list', () => {
+		const result = listHelper.favoriteBlog(blogs)
+		assert.deepStrictEqual(result, blogs[2])
+	})
 })

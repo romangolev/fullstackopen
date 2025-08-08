@@ -7,7 +7,17 @@ const totalLikes = (bloglist) => {
 	return likes
 }
 
+const favoriteBlog = (bloglist) => {
+	if (bloglist.length === 0 || !Array.isArray(bloglist)){
+		return null;
+	}
+	return favorites = bloglist.reduce((max, current) => {
+		return current.likes > max.likes ? current : max;
+	});
+}
+
 module.exports = {
 	dummy,
-	totalLikes 
+	totalLikes,
+	favoriteBlog 
 }
