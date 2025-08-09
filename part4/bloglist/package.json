@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-	  "dev": "node index.js --watch",
-	  "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node index.js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "lodash": "^4.17.21",
     "mongoose": "^8.17.0"
   }
 }
