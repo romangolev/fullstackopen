@@ -120,3 +120,20 @@ describe('most blogs', () => {
 	  assert.deepEqual(result, { author: 'Robert C. Martin', blogs: 3 })
 	})
 })
+
+describe('most likes', () => {
+	test('mostLikes of empty list returns null', () => {
+	  const result = listHelper.mostLikes([])
+	  assert.equal(result, null)
+	})
+	
+	test('mostLikes of single element list', () => {
+	  const result = listHelper.mostLikes(listWithOneBlog)
+	  assert.deepEqual(result, { author: 'Edsger W. Dijkstra', likes: 5 })
+	})
+	
+	test('mostLikes of many elements returns top author', () => {
+	  const result = listHelper.mostLikes(blogs)
+	  assert.deepEqual(result, { author: 'Edsger W. Dijkstra', likes: 17 })
+	})
+})
