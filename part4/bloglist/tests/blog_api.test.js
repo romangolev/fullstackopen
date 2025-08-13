@@ -26,6 +26,29 @@ test.only('verify that blog has unique identifier property', async () => {
 	})
 })
 
+test.only('verify that post request successfully creates new blogpost', async () => {
+	const newblog = {
+		title: "Test title",
+		author: "Linus Torvalds",
+		url: "http://canonical.com",
+		likes: 100500
+	}
+
+	const res = await api
+		.post('/api/blogs')
+		.send(newblog)
+		.expect(201)
+		.expect('Content-Type', /application\/json/)
+
+	const updatedBlogs = await api
+		.get('/api/blogs')
+		.expect(200)
+		.expect('Content-Type', /application\/json/)
+	
+	const updatedTitles = updatedBlogs.body.map(blog => blog.title)
+	assert.ok(updatedTitles.includes('Test title'))
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
