@@ -49,6 +49,22 @@ test.only('verify that post request successfully creates new blogpost', async ()
 	assert.ok(updatedTitles.includes('Test title'))
 })
 
+test.only('verify that missing likes defaults to 0', async () => {
+	const newblog = {
+		title: "Test blog without lines",
+		author: "Test Author",
+		url: "http://example.com"
+		// likes are not defined
+	}
+	const res = await api
+		.post('/api/blogs')
+		.send(newblog)
+		.expect(201)
+		.expect('Content-Type', /application\/json/)
+
+	assert.strictEqual(res.body.likes, 0, 'Likes should default to 0')
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
