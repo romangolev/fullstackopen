@@ -65,6 +65,34 @@ test.only('verify that missing likes defaults to 0', async () => {
 	assert.strictEqual(res.body.likes, 0, 'Likes should default to 0')
 })
 
+test.only('creating a blog without title returns 400', async () => {
+  const newBlog = {
+    author: 'No Title',
+    url: 'http://example.com/no-title',
+    // title missing
+  }
+
+  const res = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+})
+
+test.only('creating a blog without url returns 400', async () => {
+  const newBlog = {
+    title: 'No URL',
+    author: 'No Url Author',
+    // url missing
+  }
+
+  const res = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
