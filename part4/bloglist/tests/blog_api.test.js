@@ -69,7 +69,6 @@ test.only('creating a blog without title returns 400', async () => {
   const newBlog = {
     author: 'No Title',
     url: 'http://example.com/no-title',
-    // title missing
   }
 
   const res = await api
@@ -83,7 +82,6 @@ test.only('creating a blog without url returns 400', async () => {
   const newBlog = {
     title: 'No URL',
     author: 'No Url Author',
-    // url missing
   }
 
   const res = await api
@@ -91,6 +89,12 @@ test.only('creating a blog without url returns 400', async () => {
     .send(newBlog)
     .expect(400)
     .expect('Content-Type', /application\/json/)
+})
+
+test.only('deleting element by id', async () => {
+	const res = await api
+		.delete('/api/blogs/68a1bf7dd8a19ec0d8449de5')
+		.expect(204)
 })
 
 after(async () => {
