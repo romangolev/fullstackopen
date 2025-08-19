@@ -47,6 +47,11 @@ test.only('verify that post request successfully creates new blogpost', async ()
 	
 	const updatedTitles = updatedBlogs.body.map(blog => blog.title)
 	assert.ok(updatedTitles.includes('Test title'))
+
+	// cleanup
+	await api
+		.delete(`/api/blogs/${res.body.id}`)
+		.expect(204)
 })
 
 test.only('verify that missing likes defaults to 0', async () => {
@@ -63,37 +68,83 @@ test.only('verify that missing likes defaults to 0', async () => {
 		.expect('Content-Type', /application\/json/)
 
 	assert.strictEqual(res.body.likes, 0, 'Likes should default to 0')
+
+	// cleanup
+	await api
+		.delete(`/api/blogs/${res.body.id}`)
+		.expect(204)
 })
 
 test.only('creating a blog without title returns 400', async () => {
-  const newBlog = {
-    author: 'No Title',
-    url: 'http://example.com/no-title',
-  }
+	const newBlog = {
+		author: 'No Title',
+		url: 'http://example.com/no-title',
+	}
 
-  const res = await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(400)
-    .expect('Content-Type', /application\/json/)
+	const res = await api
+		.post('/api/blogs')
+		.send(newBlog)
+		.expect(400)
+		.expect('Content-Type', /application\/json/)
 })
 
 test.only('creating a blog without url returns 400', async () => {
-  const newBlog = {
-    title: 'No URL',
-    author: 'No Url Author',
-  }
-
-  const res = await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(400)
-    .expect('Content-Type', /application\/json/)
+	const newBlog = {
+		title: 'No URL',
+		author: 'No Url Author',
+	}
+	const res = await api
+		.post('/api/blogs')
+		.send(newBlog)
+		.expect(400)
+		.expect('Content-Type', /application\/json/)
 })
 
 test.only('deleting element by id', async () => {
+	const newblog = {
+		title: "Test title",
+		author: "Linus Torvalds",
+		url: "http://canonical.com",
+		likes: 100500
+	}
+
+	const created = await api
+		.post('/api/blogs')
+		.send(newblog)
+		.expect(201)
+
 	const res = await api
-		.delete('/api/blogs/68a1bf7dd8a19ec0d8449de5')
+		.delete(`/api/blogs/${created.body.id}`)
+		.expect(204)
+})
+
+test.only('updating a blogpost likes', async () => {
+	const newblog = {
+		title: "Test title",
+		author: "Linus Torvalds",
+		url: "http://canonical.com",
+		likes: 100500
+	}
+
+	const created = await api
+		.post('/api/blogs')
+		.send(newblog)
+		.expect(201)
+
+	const updatedNewblog = {
+		...newblog,
+		likes: 300500
+	}
+
+	const updated = await api
+		.put(`/api/blogs/${created.body.id}`)
+		.send(updatedNewblog)
+		.expect(200)
+
+	assert.strictEqual(updated.body.likes, 300500, 'Likes should be updated to 300500')
+
+	const res = await api
+		.delete(`/api/blogs/${updated.body.id}`)
 		.expect(204)
 })
 
