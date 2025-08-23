@@ -7,10 +7,13 @@ const errorHandler = (error, request, response, next) => {
 		return response.status(400).json({ error: error.message })
 	}
 
-	if (error.name === 'MongoServerError' 
-		&& error.code == 11000){
-    return response.status(400).json({ error: 'expected `username` to be unique' })
-  }
+	if (error.name === 'MongoServerError' && error.code == 11000) {
+		return response.status(400).json({ error: 'expected `username` to be unique' })
+	}
+
+	if (error.name === 'JsonWebTokenError') {
+		return response.status(401).json({ error: 'token invalid' })
+	}
 
   next(error)
 }

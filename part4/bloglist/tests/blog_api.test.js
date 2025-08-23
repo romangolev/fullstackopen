@@ -1,10 +1,38 @@
-const { test, after } = require('node:test')
+const { test, after, before } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const assert = require('node:assert')
+const User = require('../models/user')
 
 const api = supertest(app)
+
+let token;
+let user;
+
+before(async () => {
+	const newUser = {
+		username: `test_user${Date.now()}`,
+		name: 'Test User',
+		password: 'secret123',
+	 };
+
+	const createRes = await api
+		.post('/api/users')
+		.send(newUser)
+		.expect(201);
+
+	user = createRes.body;
+
+	const loginRes = await api
+		.post('/api/login')
+		.send({ username: newUser.username, password: newUser.password })
+		.expect(200)
+		.expect('Content-Type', /application\/json/);
+
+	token = loginRes.body.token;
+	assert.ok(token, 'token should be defined');
+});
 
 test.only('correct amount of blogs returned', async () => {
 	const res = await api
@@ -27,6 +55,7 @@ test.only('verify that blog has unique identifier property', async () => {
 })
 
 test.only('verify that post request successfully creates new blogpost', async () => {
+
 	const newblog = {
 		title: "Test title",
 		author: "Linus Torvalds",
@@ -36,6 +65,7 @@ test.only('verify that post request successfully creates new blogpost', async ()
 
 	const res = await api
 		.post('/api/blogs')
+		.set('Authorization', `Bearer ${token}`)
 		.send(newblog)
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
@@ -63,6 +93,7 @@ test.only('verify that missing likes defaults to 0', async () => {
 	}
 	const res = await api
 		.post('/api/blogs')
+		.set('Authorization', `Bearer ${token}`)
 		.send(newblog)
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
@@ -83,6 +114,7 @@ test.only('creating a blog without title returns 400', async () => {
 
 	const res = await api
 		.post('/api/blogs')
+		.set('Authorization', `Bearer ${token}`)
 		.send(newBlog)
 		.expect(400)
 		.expect('Content-Type', /application\/json/)
@@ -95,6 +127,7 @@ test.only('creating a blog without url returns 400', async () => {
 	}
 	const res = await api
 		.post('/api/blogs')
+		.set('Authorization', `Bearer ${token}`)
 		.send(newBlog)
 		.expect(400)
 		.expect('Content-Type', /application\/json/)
@@ -110,6 +143,7 @@ test.only('deleting element by id', async () => {
 
 	const created = await api
 		.post('/api/blogs')
+		.set('Authorization', `Bearer ${token}`)
 		.send(newblog)
 		.expect(201)
 
@@ -128,6 +162,7 @@ test.only('updating a blogpost likes', async () => {
 
 	const created = await api
 		.post('/api/blogs')
+		.set('Authorization', `Bearer ${token}`)
 		.send(newblog)
 		.expect(201)
 
@@ -149,5 +184,10 @@ test.only('updating a blogpost likes', async () => {
 })
 
 after(async () => {
-  await mongoose.connection.close()
+	try {
+		await User.deleteOne({ _id: user.id });
+	} catch (err) {
+		console.error('failed to delete test user', err);
+	}
+	await mongoose.connection.close()
 })
