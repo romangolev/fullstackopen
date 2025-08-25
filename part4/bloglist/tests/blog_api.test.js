@@ -1,40 +1,57 @@
-const { test, after, before } = require('node:test')
+const { test, after, beforeEach, afterEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const assert = require('node:assert')
 const User = require('../models/user')
-
+const Blog = require('../models/blog')
 const api = supertest(app)
 
 let token;
 let user;
 
-before(async () => {
-	const newUser = {
-		username: `test_user${Date.now()}`,
-		name: 'Test User',
-		password: 'secret123',
-	 };
+beforeEach(async () => {
+  await User.deleteMany({})
+  await Blog.deleteMany({})
 
-	const createRes = await api
-		.post('/api/users')
-		.send(newUser)
-		.expect(201);
+  const newUser = {
+    username: `test_user_${Date.now()}`,
+    name: 'Test User',
+    password: 'secret123',
+  }
 
-	user = createRes.body;
+  const createRes = await api
+    .post('/api/users')
+    .send(newUser)
+    .expect(201)
 
-	const loginRes = await api
-		.post('/api/login')
-		.send({ username: newUser.username, password: newUser.password })
-		.expect(200)
-		.expect('Content-Type', /application\/json/);
+  user = createRes.body
 
-	token = loginRes.body.token;
-	assert.ok(token, 'token should be defined');
-});
+  const loginRes = await api
+    .post('/api/login')
+    .send({ username: newUser.username, password: newUser.password })
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  token = loginRes.body.token
+})
 
 test.only('correct amount of blogs returned', async () => {
+	await Blog.deleteMany({})
+	await Blog.insertMany([
+		{
+			title: 'First blog',
+			author: 'Author One',
+		      url: 'http://first.com',
+			likes: 1,
+		},
+		{
+			title: 'Second blog',
+			author: 'Author Two',
+			url: 'http://second.com',
+			likes: 2,
+		},
+	])
 	const res = await api
 		.get('/api/blogs')
 		.expect(200)
@@ -183,11 +200,11 @@ test.only('updating a blogpost likes', async () => {
 		.expect(204)
 })
 
+afterEach(async () => {
+  await Blog.deleteMany({})
+})
+
 after(async () => {
-	try {
-		await User.deleteOne({ _id: user.id });
-	} catch (err) {
-		console.error('failed to delete test user', err);
-	}
-	await mongoose.connection.close()
+  await User.deleteMany({})
+  await mongoose.connection.close()
 })
