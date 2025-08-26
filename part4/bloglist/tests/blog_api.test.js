@@ -98,6 +98,7 @@ test.only('verify that post request successfully creates new blogpost', async ()
 	// cleanup
 	await api
 		.delete(`/api/blogs/${res.body.id}`)
+		.set('Authorization', `Bearer ${token}`)
 		.expect(204)
 })
 
@@ -120,6 +121,7 @@ test.only('verify that missing likes defaults to 0', async () => {
 	// cleanup
 	await api
 		.delete(`/api/blogs/${res.body.id}`)
+		.set('Authorization', `Bearer ${token}`)
 		.expect(204)
 })
 
@@ -166,6 +168,7 @@ test.only('deleting element by id', async () => {
 
 	const res = await api
 		.delete(`/api/blogs/${created.body.id}`)
+		.set('Authorization', `Bearer ${token}`)
 		.expect(204)
 })
 
@@ -197,6 +200,7 @@ test.only('updating a blogpost likes', async () => {
 
 	const res = await api
 		.delete(`/api/blogs/${updated.body.id}`)
+		.set('Authorization', `Bearer ${token}`)
 		.expect(204)
 })
 

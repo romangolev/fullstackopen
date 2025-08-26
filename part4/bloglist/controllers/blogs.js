@@ -3,9 +3,13 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-blogsRouter.get('/', async (request, response) => {
-	const blogs = await Blog.find({})
-    response.json(blogs)
+blogsRouter.get('/', async (request, response, next) => {
+	try {
+		const blogs = await Blog.find({})
+		response.json(blogs)
+	} catch (error) {
+		next(error)
+	}
 })
 
 blogsRouter.post('/', async (request, response, next) => {
@@ -46,12 +50,28 @@ blogsRouter.post('/', async (request, response, next) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
 	try {
-		const result = await Blog.findByIdAndDelete(request.params.id)
-		if (result) {
-			return response.status(204).end()
-		} else {
+		const decodedToken = jwt.verify(request.token, process.env.SECRET)
+		
+		if (!decodedToken.id) {
+			return response.status(401).json({ error: 'token invalid' })
+		}
+
+		const user = await User.findById(decodedToken.id)
+		if (!user) {
+			return response.status(401).json({ error: 'no users in DB' })
+		}
+
+		const blog = await Blog.findById(request.params.id)
+		if (!blog) {
 			return response.status(404).send({ message: "entry not found"})
 		}
+
+		if (blog.user.toString() !== decodedToken.id.toString()) {
+			return result.status(403).json({ error: 'forbiddden: not the blog owner'  })
+		}
+
+		return response.status(204).end()
+
 	} catch (error) {
 		next(error)
 	}
