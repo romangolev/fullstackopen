@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { userExtractor } = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response, next) => {
 	try {
@@ -12,14 +13,9 @@ blogsRouter.get('/', async (request, response, next) => {
 	}
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', userExtractor, async (request, response, next) => {
 	try {
 		const { title, author, url, likes } = request.body
-		const decodedToken = jwt.verify(request.token, process.env.SECRET)
-		
-		if (!decodedToken.id) {
-			return response.status(401).json({ error: 'token invalid' })
-		}
 		
 		if (!title || !url) {
 			return response
@@ -27,11 +23,7 @@ blogsRouter.post('/', async (request, response, next) => {
 				error: 'title or url are missing'
 			})
 		}
-		const user = await User.findById(decodedToken.id)
-		
-		if (!user) {
-			return response.status(401).json({ error: 'no users in DB' })
-		}
+		const user = request.user
 
 		const blog = new Blog({
 			title,
@@ -48,25 +40,14 @@ blogsRouter.post('/', async (request, response, next) => {
 	}
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
 	try {
-		const decodedToken = jwt.verify(request.token, process.env.SECRET)
-		
-		if (!decodedToken.id) {
-			return response.status(401).json({ error: 'token invalid' })
-		}
-
-		const user = await User.findById(decodedToken.id)
-		if (!user) {
-			return response.status(401).json({ error: 'no users in DB' })
-		}
-
 		const blog = await Blog.findById(request.params.id)
 		if (!blog) {
 			return response.status(404).send({ message: "entry not found"})
 		}
 
-		if (blog.user.toString() !== decodedToken.id.toString()) {
+		if (blog.user.toString() !== request.user._id.toString()) {
 			return result.status(403).json({ error: 'forbiddden: not the blog owner'  })
 		}
 

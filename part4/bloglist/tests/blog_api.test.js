@@ -72,7 +72,6 @@ test.only('verify that blog has unique identifier property', async () => {
 })
 
 test.only('verify that post request successfully creates new blogpost', async () => {
-
 	const newblog = {
 		title: "Test title",
 		author: "Linus Torvalds",
