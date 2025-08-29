@@ -1,7 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const jwt = require('jsonwebtoken')
 const { userExtractor } = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response, next) => {
@@ -46,11 +45,10 @@ blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
 		if (!blog) {
 			return response.status(404).send({ message: "entry not found"})
 		}
-
 		if (blog.user.toString() !== request.user._id.toString()) {
-			return result.status(403).json({ error: 'forbiddden: not the blog owner'  })
+			return response.status(403).json({ error: 'forbidden: not the blog owner'  })
 		}
-
+        await blog.deleteOne()
 		return response.status(204).end()
 
 	} catch (error) {

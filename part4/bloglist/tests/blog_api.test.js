@@ -86,19 +86,9 @@ test.only('verify that post request successfully creates new blogpost', async ()
 		.expect(201)
 		.expect('Content-Type', /application\/json/)
 
-	const updatedBlogs = await api
-		.get('/api/blogs')
-		.expect(200)
-		.expect('Content-Type', /application\/json/)
-	
-	const updatedTitles = updatedBlogs.body.map(blog => blog.title)
-	assert.ok(updatedTitles.includes('Test title'))
+    const saved = await Blog.findById(res.body.id)
 
-	// cleanup
-	await api
-		.delete(`/api/blogs/${res.body.id}`)
-		.set('Authorization', `Bearer ${token}`)
-		.expect(204)
+	assert.strictEqual(saved.title, 'Test title')
 })
 
 test.only('verify that missing likes defaults to 0', async () => {
@@ -116,12 +106,6 @@ test.only('verify that missing likes defaults to 0', async () => {
 		.expect('Content-Type', /application\/json/)
 
 	assert.strictEqual(res.body.likes, 0, 'Likes should default to 0')
-
-	// cleanup
-	await api
-		.delete(`/api/blogs/${res.body.id}`)
-		.set('Authorization', `Bearer ${token}`)
-		.expect(204)
 })
 
 test.only('creating a blog without title returns 400', async () => {
@@ -156,19 +140,18 @@ test.only('deleting element by id', async () => {
 		title: "Test title",
 		author: "Linus Torvalds",
 		url: "http://canonical.com",
-		likes: 100500
+		likes: 100500,
+		user: user.id
 	}
-
-	const created = await api
-		.post('/api/blogs')
-		.set('Authorization', `Bearer ${token}`)
-		.send(newblog)
-		.expect(201)
-
+	
+	const created = await new Blog(newblog).save()
 	const res = await api
-		.delete(`/api/blogs/${created.body.id}`)
+		.delete(`/api/blogs/${created._id.toString()}`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(204)
+
+	const deleted = await Blog.findById(created._id)
+	assert.strictEqual(deleted, null)
 })
 
 test.only('updating a blogpost likes', async () => {
