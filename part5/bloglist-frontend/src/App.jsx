@@ -20,6 +20,9 @@ const App = () => {
 		try {
 			const user = await loginService.login({ username, password })
 			setUser(user)
+			window.localStorage.setItem(
+				'loggedBlogsappUser', JSON.stringify(user)
+			) 
 			setUsername('')
 			setPassword('')
 		} catch {
@@ -27,47 +30,66 @@ const App = () => {
 		}
 	}
 
-	if (user === null) {
-	return (
-	<>
-      <h2>Login</h2>
-		<form onSubmit={handleLogin}>
-			<div>
-				<label>
-					username           
-						<input
-							type="text"
-							value={username}
-							onChange={({ target }) => setUsername(target.value)}
-						/>         
-				</label>
-			</div>
-			<div>
-				<label>
-					password
-						<input
-							type="password"
-							value={password}
-							onChange={({ target }) => setPassword(target.value)}
-						/>
-				</label>
-			</div>
-			<button type="submit">login</button>
-		</form>
-		</>
-	)}
+	const handleLogout = () => {
+		try {
+			setUser(null)
+			window.localStorage.removeItem('loggedBlogsappUser') 
+			setUsername('')
+			setPassword('')
+		} catch {
+			console.log('error')
+		}
+	}
 
-	return (
-        <>
+	const loginForm = () => (
+		<>
+	      <h2>Login</h2>
+			<form onSubmit={handleLogin}>
+				<div>
+					<label>
+						username           
+							<input
+								type="text"
+								value={username}
+								onChange={({ target }) => setUsername(target.value)}
+							/>         
+					</label>
+				</div>
+				<div>
+					<label>
+						password
+							<input
+								type="password"
+								value={password}
+								onChange={({ target }) => setPassword(target.value)}
+							/>
+					</label>
+				</div>
+				<button type="submit">login</button>
+			</form>
+		</>
+	)
+
+    const blogForm = () => (
+		<>
 			<div>
-			<h2>blogs</h2>
+				<p>Logged in as {user.name} 
+				<button onClick={handleLogout}>logout</button>
+				</p>
+			</div>
+			<div>
 			{blogs.map(blog =>
 					<Blog key={blog.id} blog={blog} />
 				)}
 		    </div>
-			<div>
-				<p>Logged in as {user.name}</p>
-			</div>
+		</>
+	)
+
+	return (
+        <>
+			<h2>blogs</h2>
+			{!user && loginForm()}
+			{user && blogForm()}
 		</>
 	)
 }
