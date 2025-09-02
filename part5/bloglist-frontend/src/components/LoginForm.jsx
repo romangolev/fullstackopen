@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import loginService from '../services/login'
 import blogService from '../services/blogs'
 
-const LoginForm = ({ onSuccess, updateAllBlogs, showNotification }) => {
+const LoginForm = ({ onSuccess, showNotification }) => {
     const [username, setUsername] = useState([])
 	const [password, setPassword] = useState([])
 	
@@ -15,7 +15,6 @@ const LoginForm = ({ onSuccess, updateAllBlogs, showNotification }) => {
 			) 
 			blogService.setToken(user.token)
 			onSuccess(user)
-			await updateAllBlogs()
 			setUsername('')
 			setPassword('')
 		} catch (err) {

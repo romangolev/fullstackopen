@@ -13,13 +13,12 @@ const App = () => {
 	const [notificationmsg, setNotificationmsg] = useState(null)
 
 	useEffect(() => {
-		showNotification({message:"123", type:"info"})
+		setAllBlogs()
 		const loggedUserJSON = window.localStorage.getItem('loggedBlogsappUser')
 		if (loggedUserJSON) {
 			const user = JSON.parse(loggedUserJSON)
 			setUser(user)
 			blogService.setToken(user.token)
-			setAllBlogs()
 		}
 	}, [])
 
@@ -32,7 +31,6 @@ const App = () => {
 	const handleLogout = () => {
 		try {
 			setUser(null)
-			setBlogs([])
 			window.localStorage.removeItem('loggedBlogsappUser') 
 		} catch (err) {
 			console.log(err)
@@ -48,11 +46,6 @@ const App = () => {
     const blogForm = () => (
 		<>
 			<div>
-				<p>Logged in as {user.name} 
-				<button onClick={handleLogout}>logout</button>
-				</p>
-			</div>
-			<div>
 			{blogs.map(blog =>
 					<Blog key={blog.id} blog={blog} />
 				)}
@@ -66,17 +59,20 @@ const App = () => {
 			<Notification notification={notificationmsg} />
 			{!user && <LoginForm 
 							onSuccess={setUser} 
-							updateAllBlogs={setAllBlogs}
 							showNotification={showNotification} />}	
 			{user && (
 				<>
+		 			<div>
+   		 				<p>Logged in as {user.name} 
+   		 				<button onClick={handleLogout}>logout</button>
+   		 				</p>
+   		 			</div>
 					<NewBlogForm
-						setBlogs={setBlogs}
 						setAllBlogs={setAllBlogs}
 						showNotification={showNotification} />
-					{blogForm()}
 				</>
 			)}
+			{blogForm()}
 		</>
 	)
 }
