@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'  
@@ -42,17 +42,6 @@ const App = () => {
 		setTimeout(() => {setNotificationmsg(null)}, 5000)
 	}
 
-
-    const blogForm = () => (
-		<>
-			<div>
-			{blogs.map(blog =>
-					<Blog key={blog.id} blog={blog} />
-				)}
-		    </div>
-		</>
-	)
-
 	return (
         <>
 			<h2>blogs</h2>
@@ -72,7 +61,7 @@ const App = () => {
 						showNotification={showNotification} />
 				</>
 			)}
-			{blogForm()}
+			<BlogForm blogs={blogs} />
 		</>
 	)
 }
