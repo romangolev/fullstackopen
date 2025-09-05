@@ -1,6 +1,7 @@
 import Togglable from './Togglable'
+import blogService from '../services/blogs'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, onLike }) => {
 	const blogStyle = {
 		paddingTop: 9,
 		paddingLeft: 2,
@@ -9,6 +10,7 @@ const Blog = ({ blog }) => {
 		marginBottom: 5
 	}
 	
+
 	return (
 	<div style={blogStyle}>
 		<div>
@@ -19,7 +21,7 @@ const Blog = ({ blog }) => {
 			<div>{blog.url}</div>
 			<div>
 				likes {blog.likes}{' '}
-				<button>like</button>
+				<button id={blog.id} onClick={() => onLike(blog)}>like</button>
 			</div>
 			<div>{blog.user?.name}</div>
 			</div>

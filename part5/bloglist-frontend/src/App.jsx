@@ -28,6 +28,12 @@ const App = () => {
             ) 
 	}
 
+	const handleLike = async (blog) => {
+		const updatedBlog = { ...blog,	likes:blog.likes + 1 }
+		await blogService.update(blog.id, updatedBlog)
+		setAllBlogs()
+	}
+	
 	const handleLogout = () => {
 		try {
 			setUser(null)
@@ -61,7 +67,7 @@ const App = () => {
 						showNotification={showNotification} />
 				</>
 			)}
-			<BlogForm blogs={blogs} />
+			<BlogForm blogs={blogs} handleLike={handleLike} />
 		</>
 	)
 }
