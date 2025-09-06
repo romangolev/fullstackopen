@@ -10,7 +10,6 @@ const Blog = ({ blog, onLike }) => {
 		marginBottom: 5
 	}
 	
-
 	return (
 	<div style={blogStyle}>
 		<div>

@@ -4,6 +4,7 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'  
 import blogService from './services/blogs'
+import userService from './services/users'
 import loginService from './services/login'
 import './index.css'
 
@@ -22,10 +23,30 @@ const App = () => {
 		}
 	}, [])
 
-	const setAllBlogs = () => {
-            blogService.getAll().then(blogs =>
-            setBlogs( blogs )
-            ) 
+	const setAllBlogs = async () => {
+		const [rawBlogs, users] = await Promise.all([
+			blogService.getAll(),
+			userService.getAll()
+	    ])
+		const usersById = users.reduce((acc, u) => {
+			acc[u.id] = u
+			return acc
+	    }, {})
+	
+	    const hydrated = rawBlogs.map(b => {
+			const userId = typeof b.user === 'string' ? b.user : b.user?.id
+			const userObj = usersById[userId]
+	
+			return {
+				...b,
+				user: userObj
+					? { id: userObj.id, name: userObj.name, username: userObj.username }
+					: b.user && typeof b.user === 'object'
+						? b.user // already an object but maybe missing name
+						: { id: userId, name: 'Unknown user' }
+	      }
+	    })
+	    setBlogs(hydrated)		
 	}
 
 	const handleLike = async (blog) => {
