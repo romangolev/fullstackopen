@@ -46,7 +46,8 @@ const App = () => {
 						: { id: userId, name: 'Unknown user' }
 	      }
 	    })
-	    setBlogs(hydrated)		
+	    hydrated.sort((a, b) => b.likes - a.likes)
+		setBlogs(hydrated)		
 	}
 
 	const handleLike = async (blog) => {
