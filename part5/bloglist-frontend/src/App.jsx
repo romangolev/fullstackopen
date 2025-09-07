@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import NewBlogForm from './components/NewBlogForm'  
+import NewBlogForm from './components/NewBlogForm'
 import blogService from './services/blogs'
 import userService from './services/users'
-import loginService from './services/login'
 import './index.css'
 
 const App = () => {
@@ -32,11 +31,11 @@ const App = () => {
 			acc[u.id] = u
 			return acc
 	    }, {})
-	
-	    const hydrated = rawBlogs.map(b => {
+
+		const hydrated = rawBlogs.map(b => {
 			const userId = typeof b.user === 'string' ? b.user : b.user?.id
 			const userObj = usersById[userId]
-	
+
 			return {
 				...b,
 				user: userObj
@@ -47,7 +46,7 @@ const App = () => {
 	      }
 	    })
 	    hydrated.sort((a, b) => b.likes - a.likes)
-		setBlogs(hydrated)		
+		setBlogs(hydrated)
 	}
 
 	const handleLike = async (blog) => {
@@ -56,7 +55,7 @@ const App = () => {
 		setAllBlogs()
 	}
 
-    const handleDelete = async (blog) => {
+	const handleDelete = async (blog) => {
 		if (window.confirm(`Removing blog ${blog.name}`)) {
 			await blogService.deleteBlog(blog.id)
 			setAllBlogs()
@@ -66,7 +65,7 @@ const App = () => {
 	const handleLogout = () => {
 		try {
 			setUser(null)
-			window.localStorage.removeItem('loggedBlogsappUser') 
+			window.localStorage.removeItem('loggedBlogsappUser')
 		} catch (err) {
 			console.log(err)
 		}
@@ -78,16 +77,14 @@ const App = () => {
 	}
 
 	return (
-        <>
+		<>
 			<h2>blogs</h2>
 			<Notification notification={notificationmsg} />
-			{!user && <LoginForm 
-							onSuccess={setUser} 
-							showNotification={showNotification} />}	
+			{!user && <LoginForm onSuccess={setUser} showNotification={showNotification} />}
 			{user && (
 				<>
 		 			<div>
-   		 				<p>Logged in as {user.name} 
+   		 				<p>Logged in as {user.name}
    		 				<button onClick={handleLogout}>logout</button>
    		 				</p>
    		 			</div>
