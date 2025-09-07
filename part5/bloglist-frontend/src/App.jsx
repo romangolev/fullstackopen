@@ -55,7 +55,14 @@ const App = () => {
 		await blogService.update(blog.id, updatedBlog)
 		setAllBlogs()
 	}
-	
+
+    const handleDelete = async (blog) => {
+		if (window.confirm(`Removing blog ${blog.name}`)) {
+			await blogService.deleteBlog(blog.id)
+			setAllBlogs()
+		}
+	}
+
 	const handleLogout = () => {
 		try {
 			setUser(null)
@@ -89,7 +96,11 @@ const App = () => {
 						showNotification={showNotification} />
 				</>
 			)}
-			<BlogForm blogs={blogs} handleLike={handleLike} />
+			<BlogForm
+				blogs={blogs}
+				user={user}
+				handleLike={handleLike}
+				handleDelete={handleDelete} />
 		</>
 	)
 }

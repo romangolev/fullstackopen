@@ -1,7 +1,6 @@
 import Togglable from './Togglable'
-import blogService from '../services/blogs'
 
-const Blog = ({ blog, onLike }) => {
+const Blog = ({ blog, user, onLike, onDelete }) => {
 	const blogStyle = {
 		paddingTop: 9,
 		paddingLeft: 2,
@@ -9,7 +8,13 @@ const Blog = ({ blog, onLike }) => {
 		borderWidth: 1,
 		marginBottom: 5
 	}
-	
+
+	const deleteButton = () => (
+		<div>
+			<button onClick={() => onDelete(blog)}>delete</button>
+		</div>
+	)
+
 	return (
 	<div style={blogStyle}>
 		<div>
@@ -17,12 +22,17 @@ const Blog = ({ blog, onLike }) => {
 		</div>
 		<Togglable buttonLabelShow="view" buttonLabelHide="hide">
 			<div>
-			<div>{blog.url}</div>
-			<div>
-				likes {blog.likes}{' '}
-				<button id={blog.id} onClick={() => onLike(blog)}>like</button>
-			</div>
-			<div>{blog.user?.name}</div>
+				<div>{blog.url}</div>
+				<div>
+					likes {blog.likes}{' '}
+					<button
+						id={blog.id}
+						onClick={() => onLike(blog)}>
+							like
+					</button>
+				</div>
+				<div>{blog.user?.name}</div>
+				{ (blog.user?.name === user.name) ? deleteButton() : null}
 			</div>
 		</Togglable>
 	</div>
