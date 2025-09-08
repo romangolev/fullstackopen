@@ -16,9 +16,11 @@ const Blog = ({ blog, user, onLike, onDelete }) => {
 	)
 
 	return (
-		<div style={blogStyle}>
+		<div className='blog' style={blogStyle}>
 			<div>
-				{blog.title} {blog.author}
+				<span>{blog.title}</span>
+				<span> - </span>
+				<span>{blog.author}</span>
 			</div>
 			<Togglable buttonLabelShow="view" buttonLabelHide="hide">
 				<div>
@@ -32,7 +34,7 @@ const Blog = ({ blog, user, onLike, onDelete }) => {
 						</button>
 					</div>
 					<div>{blog.user?.name}</div>
-					{ (blog.user?.name === user.name) ? deleteButton() : null}
+					{ (blog.user?.name === user?.name) ? deleteButton() : null}
 				</div>
 			</Togglable>
 		</div>
