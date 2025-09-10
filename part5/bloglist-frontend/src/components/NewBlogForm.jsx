@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react'
-import blogService from '../services/blogs'
 import Togglable from './Togglable'
 
-const NewBlogForm = ({ setAllBlogs, showNotification }) => {
+const NewBlogForm = ({ onCreate }) => {
 	const [title, setTitle] = useState('')
 	const [author, setAuthor] = useState('')
 	const [url, setUrl] = useState('')
@@ -10,21 +9,10 @@ const NewBlogForm = ({ setAllBlogs, showNotification }) => {
 
 	const handleNewblog = async (event) => {
 		event.preventDefault()
-		if (title === '' || author === '' || url === '') {
-			showNotification({ message:'title, author or url not specified', type: 'error' })
-			return null
-		}
-		try {
-			await blogService.create({ title, author, url })
-			setAllBlogs()
-			showNotification({ message:`a new blog ${title} added `, type: 'info' })
-			setTitle('')
-			setAuthor('')
-			setUrl('')
-		} catch (err) {
-			showNotification({ message:`error : ${err} `, type: 'error' })
-			console.log(err)
-		}
+		onCreate({ title, author, url })
+		setTitle('')
+		setAuthor('')
+		setUrl('')	
 	}
 
 	return (

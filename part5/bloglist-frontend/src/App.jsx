@@ -48,6 +48,19 @@ const App = () => {
 	    hydrated.sort((a, b) => b.likes - a.likes)
 		setBlogs(hydrated)
 	}
+	
+	const handleCreate = async (blogObject) => {
+		try {
+			await blogService.create(blogObject)
+			await setAllBlogs()
+			showNotification({
+				message: `a new blog ${blogObject.title} added`,
+				type: 'info',
+			})
+		} catch (err) {
+			showNotification({ message: `error: ${err}`, type: 'error' })
+		}
+	}
 
 	const handleLike = async (blog) => {
 		const updatedBlog = { ...blog,	likes:blog.likes + 1 }
@@ -88,9 +101,7 @@ const App = () => {
    		 				<button onClick={handleLogout}>logout</button>
    		 				</p>
    		 			</div>
-					<NewBlogForm
-						setAllBlogs={setAllBlogs}
-						showNotification={showNotification} />
+					<NewBlogForm onCreate={handleCreate} />
 				</>
 			)}
 			<BlogForm
