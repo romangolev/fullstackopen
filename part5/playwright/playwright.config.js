@@ -73,13 +73,13 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run start:test',
-      port: 3003,                      // backend port
+      port: 3003,
       cwd: '../bloglist-api',
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: 'npm run dev',          // or "npm start" if that's what frontend uses
-      port: 5173,                      // frontend port (CRA=3000, Vite=5173)
+      command: 'npm run dev',
+      port: 5173,
       cwd: '../bloglist-frontend',
       reuseExistingServer: !process.env.CI,
     },
