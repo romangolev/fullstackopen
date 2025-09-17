@@ -27,7 +27,7 @@ describe('Blog app', () => {
             await page.getByRole('textbox', { name: 'username' }).fill('mluukkai')
             await page.getByRole('textbox', { name: 'password' }).fill('salainen')
             await page.getByRole('button', { name: 'login' }).click()
-            
+ 
 			await expect(page.getByText('Logged in as Matti Luukkainen')).toBeVisible()
         })
 
@@ -36,10 +36,34 @@ describe('Blog app', () => {
             await page.getByRole('textbox', { name: 'password' }).fill('wrong')
             await page.getByRole('button', { name: 'login' }).click()
 
-            const errorDiv = page.locator('.error')
+			const errorDiv = page.locator('.error')
             await expect(errorDiv).toContainText('wrong username or password')
-            
+ 
 			await expect(page.getByRole('button', { name: 'login' })).toBeVisible()
         })
     })
+
+	describe('Blogs manipulations with the logged-in user', () => {
+		beforeEach(async ({ page }) => {
+            await page.getByRole('textbox', { name: 'username' }).fill('mluukkai')
+            await page.getByRole('textbox', { name: 'password' }).fill('salainen')
+            await page.getByRole('button', { name: 'login' }).click()
+		})
+
+		test('a new blog created', async ({ page }) => {
+            await page.getByRole('button', { name: 'create new blog' }).click()
+
+            await expect(page.getByRole('heading', { name: 'create new' })).toBeVisible()
+
+            await page.getByRole('textbox', { name: 'title'}).fill('1')
+            await page.getByRole('textbox', { name: 'author'}).fill('Mike Scott')
+            await page.getByRole('textbox', { name: 'url'}).fill('https://office.com')
+			
+            await page.getByRole('button', { name: 'create' }).click()
+			const infoDiv = page.locator('.info')
+
+            await expect(infoDiv).toContainText('a new blog 1 added')
+
+		})
+	})
 })
