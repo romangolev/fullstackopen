@@ -45,25 +45,31 @@ describe('Blog app', () => {
 
 	describe('Blogs manipulations with the logged-in user', () => {
 		beforeEach(async ({ page }) => {
-            await page.getByRole('textbox', { name: 'username' }).fill('mluukkai')
+            // log in
+			await page.getByRole('textbox', { name: 'username' }).fill('mluukkai')
             await page.getByRole('textbox', { name: 'password' }).fill('salainen')
             await page.getByRole('button', { name: 'login' }).click()
-		})
 
-		test('a new blog created', async ({ page }) => {
             await page.getByRole('button', { name: 'create new blog' }).click()
-
             await expect(page.getByRole('heading', { name: 'create new' })).toBeVisible()
-
+			
+			// create a new blog
             await page.getByRole('textbox', { name: 'title'}).fill('1')
             await page.getByRole('textbox', { name: 'author'}).fill('Mike Scott')
             await page.getByRole('textbox', { name: 'url'}).fill('https://office.com')
 			
             await page.getByRole('button', { name: 'create' }).click()
+		})
+
+		test('a new blog created', async ({ page }) => {
 			const infoDiv = page.locator('.info')
-
             await expect(infoDiv).toContainText('a new blog 1 added')
+		})
 
+		test('a blog can be liked', async ({ page }) => {
+            await page.getByRole('button', { name: 'view' }).click()
+            await page.getByRole('button', { name: 'like' }).click()
+			await expect(page.getByText('likes 1')).toBeVisible()
 		})
 	})
 })
