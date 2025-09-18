@@ -30,7 +30,6 @@ describe('Blog app', () => {
  
 			await expect(page.getByText('Logged in as Matti Luukkainen')).toBeVisible()
         })
-
         test('fails with wrong credentials', async ({ page }) => {
             await page.getByRole('textbox', { name: 'username' }).fill('mluukkai')
             await page.getByRole('textbox', { name: 'password' }).fill('wrong')
@@ -70,6 +69,15 @@ describe('Blog app', () => {
             await page.getByRole('button', { name: 'view' }).click()
             await page.getByRole('button', { name: 'like' }).click()
 			await expect(page.getByText('likes 1')).toBeVisible()
+		})
+		test('a blog can be deleted', async ({ page }) => {
+            await page.getByRole('button', { name: 'view' }).click()
+            page.once('dialog', dialog => dialog.accept())
+            await page.getByRole('button', { name: 'delete' }).click()
+              
+			const infoDiv = page.locator('.info')
+            await expect(infoDiv).toContainText('a 1 blog has been deleted')
+			await expect(page.getByText('1 Mike Scott')).not.toBeVisible()
 		})
 	})
 })

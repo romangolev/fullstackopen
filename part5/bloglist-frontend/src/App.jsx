@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
@@ -7,10 +7,12 @@ import blogService from './services/blogs'
 import userService from './services/users'
 import './index.css'
 
+
 const App = () => {
 	const [blogs, setBlogs] = useState([])
 	const [user, setUser] = useState(null)
 	const [notificationmsg, setNotificationmsg] = useState(null)
+	const timeoutIdRef = useRef(null)
 
 	useEffect(() => {
 		setAllBlogs()
@@ -70,8 +72,16 @@ const App = () => {
 
 	const handleDelete = async (blog) => {
 		if (window.confirm(`Removing blog ${blog.name}`)) {
-			await blogService.deleteBlog(blog.id)
-			setAllBlogs()
+			try {
+				await blogService.deleteBlog(blog.id)
+				setAllBlogs()
+				showNotification({
+					message: `a ${blog.title} blog has been deleted`,
+					type: 'info',
+				})
+			} catch (err) {
+				showNotification({ message: `error: ${err}`, type: 'error' })
+			}
 		}
 	}
 
@@ -86,7 +96,15 @@ const App = () => {
 
 	const showNotification = (msg) => {
 		setNotificationmsg(msg)
-		setTimeout(() => {setNotificationmsg(null)}, 5000)
+		
+		if (timeoutIdRef.current) {
+		clearTimeout(timeoutIdRef.current)
+		}
+		
+		timeoutIdRef.current = setTimeout(() => {
+			setNotificationmsg(null)
+		    timeoutIdRef.current = null
+		}, 5000) 
 	}
 
 	return (
