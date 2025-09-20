@@ -8,7 +8,13 @@ describe('Blog app', () => {
             username: 'mluukkai',
             password: 'salainen',
 		}
+		const otherUser = {
+			name: 'Linus Torvalds',
+			username: 'linus',
+			password: 'torvalds'
+		}
         await request.post('/api/users', { data: newUser })
+        await request.post('/api/users', { data: otherUser })
         await page.goto('/')
 	})
 	
@@ -78,6 +84,17 @@ describe('Blog app', () => {
 			const infoDiv = page.locator('.info')
             await expect(infoDiv).toContainText('a 1 blog has been deleted')
 			await expect(page.getByText('1 Mike Scott')).not.toBeVisible()
+		})
+		test('delete button is only available for', async({ page }) => {
+			await page.getByRole('button', { name: 'logout' }).click()
+			
+			await page.getByRole('textbox', { name: 'username' }).fill('linus')
+			await page.getByRole('textbox', { name: 'password' }).fill('torvalds')
+			await page.getByRole('button', { name: 'login' }).click()
+			
+			await page.getByRole('button', { name: 'view' }).click()
+			
+			await expect(page.getByRole('button', { name: 'delete' })).toHaveCount(0)
 		})
 	})
 })
