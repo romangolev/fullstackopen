@@ -96,5 +96,27 @@ describe('Blog app', () => {
 			
 			await expect(page.getByRole('button', { name: 'delete' })).toHaveCount(0)
 		})
+		test('blogs are arranged in order by likes number', async ({ page }) => {
+		    await page.getByRole('button', { name: 'view' }).click()
+		    await page.getByRole('button', { name: 'like' }).click()
+			await expect(page.getByText('likes 1')).toBeVisible()
+		    await page.getByRole('button', { name: 'like' }).click()
+			await expect(page.getByText('likes 2')).toBeVisible()
+		
+		    await page.getByRole('textbox', { name: 'title' }).fill('Second blog')
+		    await page.getByRole('textbox', { name: 'author' }).fill('Author Two')
+		    await page.getByRole('textbox', { name: 'url' }).fill('https://example.com/2')
+		    await page.getByRole('button', { name: 'create' }).click()
+		
+		    const secondBlog = page.locator('.blog', { hasText: 'Second blog'})
+		    await secondBlog.getByRole('button', { name: 'view' }).click()
+		    await secondBlog.getByRole('button', { name: 'like' }).click()
+			await expect(page.getByText('likes 1')).toBeVisible()
+		
+		    const blogEntries = await page.locator('.blog')
+		
+		    await expect(blogEntries.nth(0)).toContainText('likes 2')
+		    await expect(blogEntries.nth(1)).toContainText('likes 1')
+		})
 	})
 })
