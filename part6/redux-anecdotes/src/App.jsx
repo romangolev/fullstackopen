@@ -10,7 +10,7 @@ const App = () => {
 		console.log('vote', id)
 		dispatch(voteAnecdote(id))
 	}
-   
+
 	const addAnecdote = (event) => {
 		event.preventDefault()
 		const content = event.target.anecdote.value
@@ -18,23 +18,27 @@ const App = () => {
 		dispatch(createAnecdote(content))
 	}
 	
-	return (
-		<div>
-		  <h2>Anecdotes</h2>
-		  {anecdotes.map(anecdote =>
-		    <div key={anecdote.id}>
-		      <div>
-		        {anecdote.content}
-		      </div>
-		      <div>
-		        has {anecdote.votes}
-		        <button onClick={() => vote(anecdote.id)}>vote</button>
-		      </div>
-		    </div>
-		  )}
-      <AnecdoteForm />
-		</div>
-	)
+return (
+    <div>
+        <h2>Anecdotes</h2>
+        {anecdotes
+            .slice()
+            .sort((a, b) => b.votes - a.votes)
+            .map(anecdote =>
+                <div key={anecdote.id}>
+                    <div>
+                        {anecdote.content}
+                    </div>
+                    <div>
+                        has {anecdote.votes}
+                        <button onClick={() => vote(anecdote.id)}>vote</button>
+                    </div>
+                </div>
+            )
+        }
+        <AnecdoteForm />
+    </div>
+)
 }
 
 export default App
