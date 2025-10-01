@@ -12,7 +12,9 @@ export const AnecdoteList = () => {
         : anecdotes.filter(a =>
               a.content.toLowerCase().includes(filter.toLowerCase())
           )
-    ).slice().sort((a, b) => b.votes - a.votes)
+    )
+
+    const sortedAnecdotes = [...anecdotesToShow].sort((a, b) => b.votes - a.votes)
 
     const handleVote = (id) => {
         dispatch(vote(id))
@@ -20,7 +22,7 @@ export const AnecdoteList = () => {
 
     return (
         <>
-            {anecdotesToShow.map(anecdote => (
+            {sortedAnecdotes.map(anecdote => (
                 <div key={anecdote.id}>
                     <div>{anecdote.content}</div>
                     <div>
@@ -28,7 +30,8 @@ export const AnecdoteList = () => {
                         <button onClick={() => handleVote(anecdote.id)}>vote</button>
                     </div>
                 </div>
-            ))}
+              )
+            )}
         </>
     )
 }
