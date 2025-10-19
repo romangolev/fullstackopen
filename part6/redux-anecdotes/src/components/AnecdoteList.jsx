@@ -16,7 +16,6 @@ export const AnecdoteList = () => {
     )
 
     const sortedAnecdotes = [...anecdotesToShow].sort((a, b) => b.votes - a.votes)
-
     const handleVote = (anecdote) => {
         dispatch(vote(anecdote.id))
         dispatch(showNotification(`you voted for "${anecdote.content}"`, 5))
