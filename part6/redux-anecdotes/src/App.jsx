@@ -1,13 +1,19 @@
+import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { AnecdoteForm } from './components/AnecdoteForm'
 import { AnecdoteList } from './components/AnecdoteList'
 import { Filter } from './components/Filter'
 import { Notification } from './components/Notification'
+import { initializeAnecdotes } from './reducers/anecdoteReducer'
 
 const App = () => {
 	const dispatch = useDispatch()
-	
-	const addAnecdote = (event) => {
+
+  useEffect(() => {
+      dispatch(initializeAnecdotes())
+  }, [dispatch])
+
+  const addAnecdote = (event) => {
 		event.preventDefault()
 		const content = event.target.anecdote.value
 		event.target.anecdote.value = ''
