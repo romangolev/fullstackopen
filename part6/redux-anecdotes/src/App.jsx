@@ -7,33 +7,26 @@ import { Notification } from './components/Notification'
 import { initializeAnecdotes } from './reducers/anecdoteReducer'
 
 const App = () => {
-	const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  useEffect(() => {
-      dispatch(initializeAnecdotes())
-  }, [dispatch])
+    useEffect(() => {
+        dispatch(initializeAnecdotes())
+    }, [dispatch])
 
-  const addAnecdote = (event) => {
-		event.preventDefault()
-		const content = event.target.anecdote.value
-		event.target.anecdote.value = ''
-		dispatch(createAnecdote(content))
-	}
-	
-  return (
-    <>
-      <div>
-          <h2>Anecdotes</h2>
-          <Filter />
-          <Notification />
-          <AnecdoteList />
-      </div>
-      <div>
-          <h2>create new</h2>
-          <AnecdoteForm />
-      </div>
-    </>
-  )
+    return (
+        <>
+            <div>
+                <h2>Anecdotes</h2>
+                <Filter />
+                <Notification />
+                <AnecdoteList />
+            </div>
+            <div>
+                <h2>create new</h2>
+                <AnecdoteForm />
+            </div>
+        </>
+    )
 }
 
 export default App
