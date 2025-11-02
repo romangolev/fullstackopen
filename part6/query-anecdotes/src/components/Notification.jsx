@@ -1,4 +1,4 @@
-import { useNotificationValue } from '../context/NotificationCoxtext'
+import { useNotificationValue } from '../context/NotificationContext'
 
 const Notification = () => {
     const message = useNotificationValue()
