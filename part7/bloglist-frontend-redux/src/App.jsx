@@ -1,17 +1,18 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import blogService from "./services/blogs";
 import userService from "./services/users";
+import { showNotification } from "./reducers/notificationSlice";
 import "./index.css";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [notificationmsg, setNotificationmsg] = useState(null);
-  const timeoutIdRef = useRef(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setAllBlogs();
@@ -54,12 +55,19 @@ const App = () => {
     try {
       await blogService.create(blogObject);
       await setAllBlogs();
-      showNotification({
-        message: `a new blog ${blogObject.title} added`,
-        type: "info",
-      });
+      dispatch(
+        showNotification({
+          message: `a new blog ${blogObject.title} added`,
+          type: "info",
+        }),
+      );
     } catch (err) {
-      showNotification({ message: `error: ${err}`, type: "error" });
+      dispatch(
+        showNotification({
+          message: `error: ${err}`,
+          type: "error",
+        }),
+      );
     }
   };
 
@@ -74,12 +82,19 @@ const App = () => {
       try {
         await blogService.deleteBlog(blog.id);
         setAllBlogs();
-        showNotification({
-          message: `a ${blog.title} blog has been deleted`,
-          type: "info",
-        });
+        dispatch(
+          showNotification({
+            message: `a ${blog.title} blog has been deleted`,
+            type: "info",
+          }),
+        );
       } catch (err) {
-        showNotification({ message: `error: ${err}`, type: "error" });
+        dispatch(
+          showNotification({
+            message: `error: ${err}`,
+            type: "error",
+          }),
+        );
       }
     }
   };
@@ -93,26 +108,11 @@ const App = () => {
     }
   };
 
-  const showNotification = (msg) => {
-    setNotificationmsg(msg);
-
-    if (timeoutIdRef.current) {
-      clearTimeout(timeoutIdRef.current);
-    }
-
-    timeoutIdRef.current = setTimeout(() => {
-      setNotificationmsg(null);
-      timeoutIdRef.current = null;
-    }, 5000);
-  };
-
   return (
     <>
       <h2>blogs</h2>
-      <Notification notification={notificationmsg} />
-      {!user && (
-        <LoginForm onSuccess={setUser} showNotification={showNotification} />
-      )}
+      <Notification />
+      {!user && <LoginForm onSuccess={setUser} />}
       {user && (
         <>
           <div>
