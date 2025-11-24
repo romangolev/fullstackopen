@@ -1,60 +1,32 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import blogService from "./services/blogs";
-import userService from "./services/users";
 import { showNotification } from "./reducers/notificationSlice";
+import { initializeBlogs, addBlog } from "./reducers/blogsSlice";
 import "./index.css";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
+  const blogs = useSelector((state) => state.blogs);
 
   useEffect(() => {
-    setAllBlogs();
+    dispatch(initializeBlogs());
     const loggedUserJSON = window.localStorage.getItem("loggedBlogsappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
       setUser(user);
       blogService.setToken(user.token);
     }
-  }, []);
-
-  const setAllBlogs = async () => {
-    const [rawBlogs, users] = await Promise.all([
-      blogService.getAll(),
-      userService.getAll(),
-    ]);
-    const usersById = users.reduce((acc, u) => {
-      acc[u.id] = u;
-      return acc;
-    }, {});
-
-    const hydrated = rawBlogs.map((b) => {
-      const userId = typeof b.user === "string" ? b.user : b.user?.id;
-      const userObj = usersById[userId];
-
-      return {
-        ...b,
-        user: userObj
-          ? { id: userObj.id, name: userObj.name, username: userObj.username }
-          : b.user && typeof b.user === "object"
-            ? b.user // already an object but maybe missing name
-            : { id: userId, name: "Unknown user" },
-      };
-    });
-    hydrated.sort((a, b) => b.likes - a.likes);
-    setBlogs(hydrated);
-  };
+  }, [dispatch]);
 
   const handleCreate = async (blogObject) => {
     try {
-      await blogService.create(blogObject);
-      await setAllBlogs();
+      await dispatch(addBlog(blogObject));
       dispatch(
         showNotification({
           message: `a new blog ${blogObject.title} added`,
@@ -74,14 +46,14 @@ const App = () => {
   const handleLike = async (blog) => {
     const updatedBlog = { ...blog, likes: blog.likes + 1 };
     await blogService.update(blog.id, updatedBlog);
-    setAllBlogs();
+    dispatch(initializeBlogs());
   };
 
   const handleDelete = async (blog) => {
     if (window.confirm(`Removing blog ${blog.name}`)) {
       try {
         await blogService.deleteBlog(blog.id);
-        setAllBlogs();
+        dispatch(initializeBlogs());
         dispatch(
           showNotification({
             message: `a ${blog.title} blog has been deleted`,
