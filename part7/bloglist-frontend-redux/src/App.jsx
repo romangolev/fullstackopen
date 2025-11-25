@@ -6,7 +6,12 @@ import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import blogService from "./services/blogs";
 import { showNotification } from "./reducers/notificationSlice";
-import { initializeBlogs, addBlog } from "./reducers/blogsSlice";
+import {
+  initializeBlogs,
+  addBlog,
+  likeBlog,
+  deleteBlog,
+} from "./reducers/blogsSlice";
 import "./index.css";
 
 const App = () => {
@@ -44,16 +49,22 @@ const App = () => {
   };
 
   const handleLike = async (blog) => {
-    const updatedBlog = { ...blog, likes: blog.likes + 1 };
-    await blogService.update(blog.id, updatedBlog);
-    dispatch(initializeBlogs());
+    try {
+      await dispatch(likeBlog(blog));
+    } catch (err) {
+      dispatch(
+        showNotification({
+          message: `error: ${err}`,
+          type: "error",
+        }),
+      );
+    }
   };
 
   const handleDelete = async (blog) => {
-    if (window.confirm(`Removing blog ${blog.name}`)) {
+    if (window.confirm(`Removing blog ${blog.title}`)) {
       try {
-        await blogService.deleteBlog(blog.id);
-        dispatch(initializeBlogs());
+        await dispatch(deleteBlog(blog.id));
         dispatch(
           showNotification({
             message: `a ${blog.title} blog has been deleted`,
