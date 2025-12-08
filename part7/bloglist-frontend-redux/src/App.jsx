@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
-import blogService from "./services/blogs";
 import { showNotification } from "./reducers/notificationSlice";
 import {
   initializeBlogs,
@@ -12,21 +11,17 @@ import {
   likeBlog,
   deleteBlog,
 } from "./reducers/blogsSlice";
+import { initializeUser, logoutUser } from "./reducers/userSlice";
 import "./index.css";
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const dispatch = useDispatch();
   const blogs = useSelector((state) => state.blogs);
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(initializeBlogs());
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogsappUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-    }
+    dispatch(initializeUser());
   }, [dispatch]);
 
   const handleCreate = async (blogObject) => {
@@ -84,8 +79,7 @@ const App = () => {
 
   const handleLogout = () => {
     try {
-      setUser(null);
-      window.localStorage.removeItem("loggedBlogsappUser");
+      dispatch(logoutUser());
     } catch (err) {
       console.log(err);
     }
@@ -95,7 +89,7 @@ const App = () => {
     <>
       <h2>blogs</h2>
       <Notification />
-      {!user && <LoginForm onSuccess={setUser} />}
+      {!user && <LoginForm />}
       {user && (
         <>
           <div>
