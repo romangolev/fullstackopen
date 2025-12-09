@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
@@ -11,11 +11,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useUserDispatch, useUserValue } from "./context/UserContext";
 import "./index.css";
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const notify = useNotify();
+  const userDispatch = useUserDispatch();
+  const user = useUserValue();
   const queryClient = useQueryClient();
 
   const fetchBlogs = useMemo(
@@ -57,10 +59,10 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogsappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      userDispatch({ type: "LOGIN", payload: user });
       blogService.setToken(user.token);
     }
-  }, []);
+  }, [userDispatch]);
 
   const createBlogMutation = useMutation({
     mutationFn: blogService.create,
@@ -128,7 +130,7 @@ const App = () => {
 
   const handleLogout = () => {
     try {
-      setUser(null);
+      userDispatch({ type: "LOGOUT" });
       window.localStorage.removeItem("loggedBlogsappUser");
     } catch (err) {
       console.log(err);
@@ -139,7 +141,7 @@ const App = () => {
     <>
       <h2>blogs</h2>
       <Notification />
-      {!user && <LoginForm onSuccess={setUser} />}
+      {!user && <LoginForm />}
       {user && (
         <>
           <div>

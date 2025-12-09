@@ -2,11 +2,13 @@ import { useState } from "react";
 import loginService from "../services/login";
 import blogService from "../services/blogs";
 import { useNotify } from "../context/NotificationContext";
+import { useUserDispatch } from "../context/UserContext";
 
-const LoginForm = ({ onSuccess }) => {
+const LoginForm = () => {
   const [username, setUsername] = useState([]);
   const [password, setPassword] = useState([]);
   const notify = useNotify();
+  const userDispatch = useUserDispatch();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -14,7 +16,7 @@ const LoginForm = ({ onSuccess }) => {
       const user = await loginService.login({ username, password });
       window.localStorage.setItem("loggedBlogsappUser", JSON.stringify(user));
       blogService.setToken(user.token);
-      onSuccess(user);
+      userDispatch({ type: "LOGIN", payload: user });
       setUsername("");
       setPassword("");
     } catch (err) {
