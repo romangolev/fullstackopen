@@ -83,10 +83,20 @@ const App = () => {
   const likeMutation = useMutation({
     mutationFn: async (blog) => {
       const updatedBlog = { ...blog, likes: blog.likes + 1 };
-      await blogService.update(blog.id, updatedBlog);
+      return blogService.update(blog.id, updatedBlog);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    onSuccess: (updatedBlog) => {
+      queryClient.setQueryData(["blogs"], (old) => {
+        if (!old) return old;
+        const next = old.map((b) =>
+          b.id === updatedBlog.id ? { ...b, ...updatedBlog } : b,
+        );
+        next.sort((a, b) => b.likes - a.likes);
+        return next;
+      });
+    },
+    onError: (err) => {
+      notify({ message: `error: ${err}`, type: "error" });
     },
   });
 
@@ -97,7 +107,9 @@ const App = () => {
   const deleteMutation = useMutation({
     mutationFn: (blog) => blogService.deleteBlog(blog.id),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      queryClient.setQueryData(["blogs"], (old) =>
+        old ? old.filter((b) => b.id !== variables.id) : old,
+      );
       notify({
         message: `a ${variables.title} blog has been deleted`,
         type: "info",
