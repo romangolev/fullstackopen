@@ -31,11 +31,7 @@ blogsRouter.post("/", userExtractor, async (request, response, next) => {
     });
     if (likes !== undefined) blog.likes = likes;
     const saved = await blog.save();
-    const populatedUser = await saved.populate("user", {
-      username: 1,
-      name: 1,
-    });
-    response.status(201).json(populatedUser);
+    response.status(201).json(saved);
   } catch (error) {
     next(error);
   }

@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const usersRouter = require("express").Router();
+const Blog = require("../models/blog");
 const User = require("../models/user");
 
 usersRouter.post("/", async (request, response, next) => {
@@ -7,7 +8,7 @@ usersRouter.post("/", async (request, response, next) => {
     const { username, name, password } = request.body;
 
     if (!password || password.length < 3) {
-      response
+      return response
         .status(400)
         .json({ error: "password length should be longer than 3" });
     }
@@ -32,7 +33,22 @@ usersRouter.post("/", async (request, response, next) => {
 usersRouter.get("/", async (request, response, next) => {
   try {
     const users = await User.find({});
-    response.json(users);
+    const blogCounts = await Blog.aggregate([
+      { $group: { _id: "$user", blogCount: { $sum: 1 } } },
+    ]);
+    const countByUserId = new Map(
+      blogCounts
+        .filter((item) => item._id)
+        .map((item) => [item._id.toString(), item.blogCount])
+    );
+
+    const result = users.map((user) => {
+      const serialized = user.toJSON();
+      serialized.blogCount = countByUserId.get(user._id.toString()) || 0;
+      return serialized;
+    });
+
+    response.json(result);
   } catch (error) {
     next(error);
   }
