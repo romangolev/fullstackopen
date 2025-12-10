@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
+import UsersView from "./components/UsersView";
 import blogService from "./services/blogs";
 import userService from "./services/users";
 import { useNotify } from "./context/NotificationContext";
@@ -12,6 +13,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useUserDispatch, useUserValue } from "./context/UserContext";
+import { Route, Routes } from "react-router-dom";
 import "./index.css";
 
 const App = () => {
@@ -20,11 +22,29 @@ const App = () => {
   const user = useUserValue();
   const queryClient = useQueryClient();
 
-  const fetchBlogs = useMemo(
-    () => async () => {
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogsappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      userDispatch({ type: "LOGIN", payload: user });
+      blogService.setToken(user.token);
+    }
+  }, [userDispatch]);
+
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: userService.getAll,
+  });
+
+  const blogsQuery = useQuery({
+    queryKey: ["blogs"],
+    queryFn: async () => {
       const [rawBlogs, users] = await Promise.all([
         blogService.getAll(),
-        userService.getAll(),
+        queryClient.ensureQueryData({
+          queryKey: ["users"],
+          queryFn: userService.getAll,
+        }),
       ]);
       const usersById = users.reduce((acc, u) => {
         acc[u.id] = u;
@@ -47,22 +67,7 @@ const App = () => {
       hydrated.sort((a, b) => b.likes - a.likes);
       return hydrated;
     },
-    [],
-  );
-
-  const blogsQuery = useQuery({
-    queryKey: ["blogs"],
-    queryFn: fetchBlogs,
   });
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogsappUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      userDispatch({ type: "LOGIN", payload: user });
-      blogService.setToken(user.token);
-    }
-  }, [userDispatch]);
 
   const createBlogMutation = useMutation({
     mutationFn: blogService.create,
@@ -139,30 +144,36 @@ const App = () => {
 
   return (
     <>
-      <h2>blogs</h2>
       <Notification />
       {!user && <LoginForm />}
       {user && (
-        <>
-          <div>
-            <p>
-              Logged in as {user.name}
-              <button onClick={handleLogout}>logout</button>
-            </p>
-          </div>
-          <NewBlogForm onCreate={handleCreate} />
-        </>
+        <p>
+          Logged in as {user.name}{" "}
+          <button onClick={handleLogout}>logout</button>
+        </p>
       )}
-      {blogsQuery.isLoading && <div>Loading blogs...</div>}
-      {blogsQuery.isError && <div>Error loading blogs</div>}
-      {blogsQuery.isSuccess && (
-        <BlogForm
-          blogs={blogsQuery.data || []}
-          user={user}
-          handleLike={handleLike}
-          handleDelete={handleDelete}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <h2>blogs</h2>
+              {user && <NewBlogForm onCreate={handleCreate} />}
+              {blogsQuery.isLoading && <div>Loading blogs...</div>}
+              {blogsQuery.isError && <div>Error loading blogs</div>}
+              {blogsQuery.isSuccess && (
+                <BlogForm
+                  blogs={blogsQuery.data || []}
+                  user={user}
+                  handleLike={handleLike}
+                  handleDelete={handleDelete}
+                />
+              )}
+            </>
+          }
         />
-      )}
+        <Route path="/users" element={<UsersView usersQuery={usersQuery} />} />
+      </Routes>
     </>
   );
 };

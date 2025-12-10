@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Route, Routes } from "react-router-dom";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
+import UsersView from "./components/UsersView";
 import { showNotification } from "./reducers/notificationSlice";
 import {
   initializeBlogs,
@@ -89,24 +91,32 @@ const App = () => {
     <>
       <h2>blogs</h2>
       <Notification />
-      {!user && <LoginForm />}
       {user && (
-        <>
-          <div>
-            <p>
-              Logged in as {user.name}
-              <button onClick={handleLogout}>logout</button>
-            </p>
-          </div>
-          <NewBlogForm onCreate={handleCreate} />
-        </>
+        <div>
+          <p>
+            Logged in as {user.name}
+            <button onClick={handleLogout}>logout</button>
+          </p>
+        </div>
       )}
-      <BlogForm
-        blogs={blogs}
-        user={user}
-        handleLike={handleLike}
-        handleDelete={handleDelete}
-      />
+      <Routes>
+        <Route path="/users" element={<UsersView />} />
+        <Route
+          path="/"
+          element={
+            <>
+              {!user && <LoginForm />}
+              {user && <NewBlogForm onCreate={handleCreate} />}
+              <BlogForm
+                blogs={blogs}
+                user={user}
+                handleLike={handleLike}
+                handleDelete={handleDelete}
+              />
+            </>
+          }
+        />
+      </Routes>
     </>
   );
 };

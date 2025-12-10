@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import blogService from "../services/blogs";
 import userService from "../services/users";
+import { setUsers } from "./usersSlice";
 
 const initialState = [];
 
@@ -9,7 +10,9 @@ const sortBlogs = (blogs) => {
 };
 
 const hydrateBlogs = (rawBlogs, users) => {
-  const usersById = users.reduce((acc, user) => {
+  const safeUsers = Array.isArray(users) ? users : [];
+
+  const usersById = safeUsers.reduce((acc, user) => {
     acc[user.id] = user;
     return acc;
   }, {});
@@ -73,7 +76,9 @@ export const initializeBlogs = () => async (dispatch) => {
     blogService.getAll(),
     userService.getAll(),
   ]);
-  dispatch(setBlogs(hydrateBlogs(rawBlogs, users)));
+  const safeUsers = Array.isArray(users) ? users : [];
+  dispatch(setUsers(safeUsers));
+  dispatch(setBlogs(hydrateBlogs(rawBlogs, safeUsers)));
 };
 
 export const addBlog = (blogObject) => async (dispatch) => {
@@ -103,7 +108,7 @@ export const likeBlog = (blog) => async (dispatch, getState) => {
 
 export const deleteBlog = (blogId) => async (dispatch) => {
   await blogService.deleteBlog(blogId);
-  dispatch(removeBlog(blogId));
+  dispatch(initializeBlogs());
 };
 
 export const { setBlogs, updateBlog, removeBlog } = blogsSlice.actions;
