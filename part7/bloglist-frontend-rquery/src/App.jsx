@@ -4,6 +4,7 @@ import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import UsersView from "./components/UsersView";
+import UserView from "./components/UserView";
 import blogService from "./services/blogs";
 import userService from "./services/users";
 import { useNotify } from "./context/NotificationContext";
@@ -173,6 +174,10 @@ const App = () => {
           }
         />
         <Route path="/users" element={<UsersView usersQuery={usersQuery} />} />
+        <Route
+          path="/users/:id"
+          element={<UserView usersQuery={usersQuery} />}
+        />
       </Routes>
     </>
   );

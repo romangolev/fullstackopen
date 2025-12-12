@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const UsersView = ({ usersQuery }) => {
   if (usersQuery.isLoading) return <div>Loading users...</div>;
   if (usersQuery.isError) return <div>Error loading users</div>;
@@ -15,7 +17,9 @@ const UsersView = ({ usersQuery }) => {
         <tbody>
           {usersQuery.data?.map((user) => (
             <tr key={user.id}>
-              <td>{user.name}</td>
+              <td>
+                <Link to={`/users/${user.id}`}>{user.name}</Link>
+              </td>
               <td>{user.blogCount}</td>
             </tr>
           ))}

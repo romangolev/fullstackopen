@@ -39,7 +39,7 @@ usersRouter.get("/", async (request, response, next) => {
     const countByUserId = new Map(
       blogCounts
         .filter((item) => item._id)
-        .map((item) => [item._id.toString(), item.blogCount])
+        .map((item) => [item._id.toString(), item.blogCount]),
     );
 
     const result = users.map((user) => {
@@ -49,6 +49,23 @@ usersRouter.get("/", async (request, response, next) => {
     });
 
     response.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.get("/:id", async (request, response, next) => {
+  try {
+    const user = await User.findById(request.params.id);
+
+    if (!user) {
+      return response.status(404).json({ error: "user not found" });
+    }
+
+    const blogs = await Blog.find({ user: user._id }).select("title");
+    const blogTitles = blogs.map((blog) => blog.title);
+
+    response.json(blogTitles);
   } catch (error) {
     next(error);
   }

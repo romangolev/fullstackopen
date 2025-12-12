@@ -6,6 +6,7 @@ import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import UsersView from "./components/UsersView";
+import UserView from "./components/UserView";
 import { showNotification } from "./reducers/notificationSlice";
 import {
   initializeBlogs,
@@ -101,6 +102,7 @@ const App = () => {
       )}
       <Routes>
         <Route path="/users" element={<UsersView />} />
+        <Route path="/users/:id" element={<UserView />} />
         <Route
           path="/"
           element={
