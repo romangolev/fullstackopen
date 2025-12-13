@@ -72,6 +72,32 @@ test.only("verify that blog has unique identifier property", async () => {
   });
 });
 
+test.only("fetching a single blog returns full details", async () => {
+  const newBlog = {
+    title: "Detailed blog",
+    author: "Detail Author",
+    url: "http://detailed.com",
+    likes: 42,
+  };
+
+  const created = await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const result = await api
+    .get(`/api/blogs/${created.body.id}`)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+
+  assert.strictEqual(result.body.title, newBlog.title);
+  assert.strictEqual(result.body.author, newBlog.author);
+  assert.strictEqual(result.body.url, newBlog.url);
+  assert.strictEqual(result.body.likes, newBlog.likes);
+});
+
 test.only("verify that post request successfully creates new blogpost", async () => {
   const newblog = {
     title: "Test title",

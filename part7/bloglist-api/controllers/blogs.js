@@ -12,6 +12,20 @@ blogsRouter.get("/", async (request, response, next) => {
   }
 });
 
+blogsRouter.get("/:id", async (request, response, next) => {
+  try {
+    const blog = await Blog.findById(request.params.id);
+
+    if (!blog) {
+      return response.status(404).json({ error: "blog not found" });
+    }
+
+    response.json(blog);
+  } catch (error) {
+    next(error);
+  }
+});
+
 blogsRouter.post("/", userExtractor, async (request, response, next) => {
   try {
     const { title, author, url, likes } = request.body;

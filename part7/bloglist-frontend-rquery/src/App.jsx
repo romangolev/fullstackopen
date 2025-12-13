@@ -5,6 +5,7 @@ import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import UsersView from "./components/UsersView";
 import UserView from "./components/UserView";
+import BlogView from "./components/BlogView";
 import blogService from "./services/blogs";
 import userService from "./services/users";
 import { useNotify } from "./context/NotificationContext";
@@ -162,14 +163,7 @@ const App = () => {
               {user && <NewBlogForm onCreate={handleCreate} />}
               {blogsQuery.isLoading && <div>Loading blogs...</div>}
               {blogsQuery.isError && <div>Error loading blogs</div>}
-              {blogsQuery.isSuccess && (
-                <BlogForm
-                  blogs={blogsQuery.data || []}
-                  user={user}
-                  handleLike={handleLike}
-                  handleDelete={handleDelete}
-                />
-              )}
+              {blogsQuery.isSuccess && <BlogForm blogs={blogsQuery.data || []} />}
             </>
           }
         />
@@ -177,6 +171,17 @@ const App = () => {
         <Route
           path="/users/:id"
           element={<UserView usersQuery={usersQuery} />}
+        />
+        <Route
+          path="/blogs/:id"
+          element={
+            <BlogView
+              blogsQuery={blogsQuery}
+              user={user}
+              onLike={handleLike}
+              onDelete={handleDelete}
+            />
+          }
         />
       </Routes>
     </>

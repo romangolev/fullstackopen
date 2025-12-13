@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import Blog from "./Blog";
+import BlogView from "./BlogView";
 
 const blog = {
   id: "123",
@@ -12,31 +14,55 @@ const blog = {
 };
 
 describe("<Blog />", () => {
-  test("render content", () => {
-    render(<Blog blog={blog} />);
+  test("renders title as a link and author", () => {
+    render(
+      <MemoryRouter>
+        <Blog blog={blog} />
+      </MemoryRouter>,
+    );
 
-    expect(screen.getByText("Mars settlement")).toBeDefined();
+    const link = screen.getByRole("link", { name: /mars settlement/i });
+    expect(link).toBeDefined();
+    expect(link.getAttribute("href")).toBe("/blogs/123");
     expect(screen.getByText("Elon Musk")).toBeDefined();
-    expect(screen.queryByText("https://nasa.gov.com")).not.toBeVisible();
-    expect(screen.queryByText(/likes/i)).not.toBeVisible();
   });
+});
 
-  test("view button shows additional properties", async () => {
-    render(<Blog blog={blog} />);
-    await userEvent.click(screen.getByRole("button", { name: /view/i }));
+describe("<BlogView />", () => {
+  test("shows blog details", () => {
+    render(
+      <MemoryRouter initialEntries={["/blogs/123"]}>
+        <Routes>
+          <Route
+            path="/blogs/:id"
+            element={<BlogView blogs={[blog]} user={blog.user} onLike={() => {}} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
 
+    expect(screen.getByText("Mars settlement")).toBeVisible();
     expect(screen.getByText("https://nasa.gov.com")).toBeVisible();
     expect(screen.getByText(/likes\s*9/i)).toBeVisible();
   });
 
   test("clicking twice on like button", async () => {
     const mockHandler = vi.fn();
-    render(<Blog blog={blog} onLike={mockHandler} />);
+    render(
+      <MemoryRouter initialEntries={["/blogs/123"]}>
+        <Routes>
+          <Route
+            path="/blogs/:id"
+            element={
+              <BlogView blogs={[blog]} user={blog.user} onLike={mockHandler} />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /view/i }));
-
-    const likeButton = screen.getByRole("button", { name: /like/i });
+    const likeButton = await screen.findByRole("button", { name: /like/i });
     await user.click(likeButton);
     await user.click(likeButton);
 

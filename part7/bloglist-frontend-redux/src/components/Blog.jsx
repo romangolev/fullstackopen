@@ -1,6 +1,6 @@
-import Togglable from "./Togglable";
+import { Link } from "react-router-dom";
 
-const Blog = ({ blog, user, onLike, onDelete }) => {
+const Blog = ({ blog }) => {
   const blogStyle = {
     paddingTop: 9,
     paddingLeft: 2,
@@ -9,32 +9,13 @@ const Blog = ({ blog, user, onLike, onDelete }) => {
     marginBottom: 5,
   };
 
-  const deleteButton = () => (
-    <div>
-      <button onClick={() => onDelete(blog)}>delete</button>
-    </div>
-  );
-
   return (
     <div className="blog" style={blogStyle}>
-      <div>
+      <Link to={`/blogs/${blog.id}`} style={{ textDecoration: "none" }}>
         <span>{blog.title}</span>
-        <span> - </span>
-        <span>{blog.author}</span>
-      </div>
-      <Togglable buttonLabelShow="view" buttonLabelHide="hide">
-        <div>
-          <div>{blog.url}</div>
-          <div>
-            likes {blog.likes}{" "}
-            <button id={blog.id} onClick={() => onLike(blog)}>
-              like
-            </button>
-          </div>
-          <div>{blog.user?.name}</div>
-          {blog.user?.name === user?.name ? deleteButton() : null}
-        </div>
-      </Togglable>
+      </Link>
+      <span> - </span>
+      <span>{blog.author}</span>
     </div>
   );
 };

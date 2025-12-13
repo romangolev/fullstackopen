@@ -7,6 +7,7 @@ import LoginForm from "./components/LoginForm";
 import NewBlogForm from "./components/NewBlogForm";
 import UsersView from "./components/UsersView";
 import UserView from "./components/UserView";
+import BlogView from "./components/BlogView";
 import { showNotification } from "./reducers/notificationSlice";
 import {
   initializeBlogs,
@@ -111,13 +112,21 @@ const App = () => {
               {user && <NewBlogForm onCreate={handleCreate} />}
               <BlogForm
                 blogs={blogs}
-                user={user}
-                handleLike={handleLike}
-                handleDelete={handleDelete}
               />
             </>
           }
         />
+    <Route
+      path="/blogs/:id"
+      element={
+        <BlogView
+          blogs={blogs}
+          user={user}
+          onLike={handleLike}
+          onDelete={handleDelete}
+        />
+      }
+    />
       </Routes>
     </>
   );
