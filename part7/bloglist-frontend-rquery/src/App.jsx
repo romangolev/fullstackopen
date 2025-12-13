@@ -6,6 +6,7 @@ import NewBlogForm from "./components/NewBlogForm";
 import UsersView from "./components/UsersView";
 import UserView from "./components/UserView";
 import BlogView from "./components/BlogView";
+import Navigation from "./components/Navigation";
 import blogService from "./services/blogs";
 import userService from "./services/users";
 import { useNotify } from "./context/NotificationContext";
@@ -147,13 +148,8 @@ const App = () => {
   return (
     <>
       <Notification />
+      <Navigation user={user} onLogout={handleLogout} />
       {!user && <LoginForm />}
-      {user && (
-        <p>
-          Logged in as {user.name}{" "}
-          <button onClick={handleLogout}>logout</button>
-        </p>
-      )}
       <Routes>
         <Route
           path="/"

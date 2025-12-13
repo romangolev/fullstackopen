@@ -8,6 +8,34 @@
   margin-bottom: 10px;
 }
 
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: #e0e0e0;
+  border: 1px solid #cfcfcf;
+  margin-bottom: 1rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-links a {
+  color: #0000ee;
+  text-decoration: underline;
+}
+
+.nav-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+}
+
 .error {
   color: red;
   background: lightgrey;

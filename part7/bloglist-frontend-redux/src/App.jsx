@@ -8,6 +8,7 @@ import NewBlogForm from "./components/NewBlogForm";
 import UsersView from "./components/UsersView";
 import UserView from "./components/UserView";
 import BlogView from "./components/BlogView";
+import Navigation from "./components/Navigation";
 import { showNotification } from "./reducers/notificationSlice";
 import {
   initializeBlogs,
@@ -91,16 +92,9 @@ const App = () => {
 
   return (
     <>
-      <h2>blogs</h2>
+      <Navigation user={user} onLogout={handleLogout} />
+      <h2>blog app</h2>
       <Notification />
-      {user && (
-        <div>
-          <p>
-            Logged in as {user.name}
-            <button onClick={handleLogout}>logout</button>
-          </p>
-        </div>
-      )}
       <Routes>
         <Route path="/users" element={<UsersView />} />
         <Route path="/users/:id" element={<UserView />} />
