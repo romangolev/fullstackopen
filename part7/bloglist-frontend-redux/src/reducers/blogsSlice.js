@@ -111,5 +111,22 @@ export const deleteBlog = (blogId) => async (dispatch) => {
   dispatch(initializeBlogs());
 };
 
+export const addCommentToBlog = (blogId, comment) => async (
+  dispatch,
+  getState,
+) => {
+  const updatedBlog = await blogService.addComment(blogId, comment);
+  const fallbackUser =
+    getState().blogs.find((storedBlog) => storedBlog.id === blogId)?.user ??
+    updatedBlog.user;
+
+  dispatch(
+    updateBlog({
+      ...updatedBlog,
+      user: normalizeUser(updatedBlog, fallbackUser),
+    }),
+  );
+};
+
 export const { setBlogs, updateBlog, removeBlog } = blogsSlice.actions;
 export default blogsSlice.reducer;

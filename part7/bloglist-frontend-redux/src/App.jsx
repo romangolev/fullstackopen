@@ -15,6 +15,7 @@ import {
   addBlog,
   likeBlog,
   deleteBlog,
+  addCommentToBlog,
 } from "./reducers/blogsSlice";
 import { initializeUser, logoutUser } from "./reducers/userSlice";
 import "./index.css";
@@ -82,6 +83,25 @@ const App = () => {
     }
   };
 
+  const handleAddComment = async (blogId, comment) => {
+    try {
+      await dispatch(addCommentToBlog(blogId, comment));
+      dispatch(
+        showNotification({
+          message: "comment added",
+          type: "info",
+        }),
+      );
+    } catch (err) {
+      dispatch(
+        showNotification({
+          message: `error: ${err}`,
+          type: "error",
+        }),
+      );
+    }
+  };
+
   const handleLogout = () => {
     try {
       dispatch(logoutUser());
@@ -110,17 +130,18 @@ const App = () => {
             </>
           }
         />
-    <Route
-      path="/blogs/:id"
-      element={
-        <BlogView
-          blogs={blogs}
-          user={user}
-          onLike={handleLike}
-          onDelete={handleDelete}
+        <Route
+          path="/blogs/:id"
+          element={
+            <BlogView
+              blogs={blogs}
+              user={user}
+              onLike={handleLike}
+              onDelete={handleDelete}
+              onAddComment={handleAddComment}
+            />
+          }
         />
-      }
-    />
       </Routes>
     </>
   );

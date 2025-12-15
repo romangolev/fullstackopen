@@ -136,6 +136,28 @@ const App = () => {
     }
   };
 
+  const commentMutation = useMutation({
+    mutationFn: ({ blogId, comment }) =>
+      blogService.addComment(blogId, comment),
+    onSuccess: (updatedBlog) => {
+      queryClient.setQueryData(["blogs"], (old) => {
+        if (!old) return old;
+        const next = old.map((b) =>
+          b.id === updatedBlog.id ? { ...b, ...updatedBlog } : b,
+        );
+        next.sort((a, b) => b.likes - a.likes);
+        return next;
+      });
+    },
+    onError: (err) => {
+      notify({ message: `error: ${err}`, type: "error" });
+    },
+  });
+
+  const handleComment = async (blogId, comment) => {
+    commentMutation.mutate({ blogId, comment });
+  };
+
   const handleLogout = () => {
     try {
       userDispatch({ type: "LOGOUT" });
@@ -176,6 +198,7 @@ const App = () => {
               user={user}
               onLike={handleLike}
               onDelete={handleDelete}
+              onComment={handleComment}
             />
           }
         />
