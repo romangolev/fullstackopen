@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import userService from "../services/users";
+import { Paper, Typography, List, ListItem, ListItemText } from "@mui/material";
 
 const UserView = ({ usersQuery }) => {
   const { id } = useParams();
@@ -28,19 +29,25 @@ const UserView = ({ usersQuery }) => {
   const blogs = userBlogsQuery.data || [];
 
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <h3>added blogs</h3>
+    <Paper elevation={2} sx={{ p: 3 }}>
+      <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+        {user.name}
+      </Typography>
+      <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
+        Added blogs
+      </Typography>
       {blogs.length > 0 ? (
-        <ul>
+        <List dense>
           {blogs.map((title, index) => (
-            <li key={`${title}-${index}`}>{title}</li>
+            <ListItem key={`${title}-${index}`} disableGutters>
+              <ListItemText primary={title} />
+            </ListItem>
           ))}
-        </ul>
+        </List>
       ) : (
-        <div>No blogs yet</div>
+        <Typography color="text.secondary">No blogs yet</Typography>
       )}
-    </div>
+    </Paper>
   );
 };
 

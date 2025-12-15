@@ -1,20 +1,31 @@
-import { Link } from "react-router-dom";
-
-const blogStyle = {
-  paddingTop: 9,
-  paddingLeft: 2,
-  border: "solid",
-  borderWidth: 1,
-  marginBottom: 5,
-};
+import { Link as RouterLink } from "react-router-dom";
+import { ListItemButton, ListItemText, Typography, Stack } from "@mui/material";
 
 const Blog = ({ blog }) => {
   return (
-    <div className="blog" style={blogStyle}>
-      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-      <span> - </span>
-      <span>{blog.author}</span>
-    </div>
+    <RouterLink
+      to={`/blogs/${blog.id}`}
+      style={{ textDecoration: "none", color: "inherit", width: "100%" }}
+    >
+      <ListItemButton className="blog" component="div" sx={{ width: "100%" }}>
+        <ListItemText
+          primary={
+            <Stack direction="row" spacing={1} alignItems="baseline">
+              <Typography component="span" variant="subtitle1">
+                {blog.title}
+              </Typography>
+              <Typography
+                component="span"
+                variant="body2"
+                color="text.secondary"
+              >
+                {blog.author}
+              </Typography>
+            </Stack>
+          }
+        />
+      </ListItemButton>
+    </RouterLink>
   );
 };
 

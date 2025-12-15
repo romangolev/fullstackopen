@@ -10,6 +10,7 @@ import Navigation from "./components/Navigation";
 import blogService from "./services/blogs";
 import userService from "./services/users";
 import { useNotify } from "./context/NotificationContext";
+import { Container, Typography, Box } from "@mui/material";
 import {
   useMutation,
   useQuery,
@@ -17,7 +18,6 @@ import {
 } from "@tanstack/react-query";
 import { useUserDispatch, useUserValue } from "./context/UserContext";
 import { Route, Routes } from "react-router-dom";
-import "./index.css";
 
 const App = () => {
   const notify = useNotify();
@@ -171,38 +171,61 @@ const App = () => {
     <>
       <Notification />
       <Navigation user={user} onLogout={handleLogout} />
-      {!user && <LoginForm />}
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <h2>blogs</h2>
-              {user && <NewBlogForm onCreate={handleCreate} />}
-              {blogsQuery.isLoading && <div>Loading blogs...</div>}
-              {blogsQuery.isError && <div>Error loading blogs</div>}
-              {blogsQuery.isSuccess && <BlogForm blogs={blogsQuery.data || []} />}
-            </>
-          }
-        />
-        <Route path="/users" element={<UsersView usersQuery={usersQuery} />} />
-        <Route
-          path="/users/:id"
-          element={<UserView usersQuery={usersQuery} />}
-        />
-        <Route
-          path="/blogs/:id"
-          element={
-            <BlogView
-              blogsQuery={blogsQuery}
-              user={user}
-              onLike={handleLike}
-              onDelete={handleDelete}
-              onComment={handleComment}
-            />
-          }
-        />
-      </Routes>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        {!user && (
+          <Box sx={{ mb: 4 }}>
+            <LoginForm />
+          </Box>
+        )}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+                  Blogs
+                </Typography>
+                {user && (
+                  <Box sx={{ mb: 3 }}>
+                    <NewBlogForm onCreate={handleCreate} />
+                  </Box>
+                )}
+                {blogsQuery.isLoading && (
+                  <Typography color="text.secondary">
+                    Loading blogs...
+                  </Typography>
+                )}
+                {blogsQuery.isError && (
+                  <Typography color="error">Error loading blogs</Typography>
+                )}
+                {blogsQuery.isSuccess && (
+                  <BlogForm blogs={blogsQuery.data || []} />
+                )}
+              </>
+            }
+          />
+          <Route
+            path="/users"
+            element={<UsersView usersQuery={usersQuery} />}
+          />
+          <Route
+            path="/users/:id"
+            element={<UserView usersQuery={usersQuery} />}
+          />
+          <Route
+            path="/blogs/:id"
+            element={
+              <BlogView
+                blogsQuery={blogsQuery}
+                user={user}
+                onLike={handleLike}
+                onDelete={handleDelete}
+                onComment={handleComment}
+              />
+            }
+          />
+        </Routes>
+      </Container>
     </>
   );
 };

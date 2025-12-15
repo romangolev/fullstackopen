@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import Togglable from "./Togglable";
+import { Paper, Typography, TextField, Button, Stack } from "@mui/material";
 
 const NewBlogForm = ({ onCreate }) => {
   const [title, setTitle] = useState("");
@@ -21,43 +22,42 @@ const NewBlogForm = ({ onCreate }) => {
       buttonLabelHide="cancel"
       ref={formRef}
     >
-      <h2>create new</h2>
-      <form onSubmit={handleNewblog}>
-        <div>
-          <label>
-            title:
-            <input
+      <Paper elevation={2} sx={{ p: 3 }}>
+        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+          Create new
+        </Typography>
+        <form onSubmit={handleNewblog}>
+          <Stack spacing={2}>
+            <TextField
+              label="title"
               type="text"
               name="title"
               value={title}
               onChange={({ target }) => setTitle(target.value)}
+              fullWidth
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            author:
-            <input
+            <TextField
+              label="author"
               type="text"
               name="author"
               value={author}
               onChange={({ target }) => setAuthor(target.value)}
+              fullWidth
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            url:
-            <input
+            <TextField
+              label="url"
               type="text"
               name="url"
               value={url}
               onChange={({ target }) => setUrl(target.value)}
+              fullWidth
             />
-          </label>
-        </div>
-        <button type="submit">create</button>
-      </form>
+            <Button type="submit" variant="contained">
+              create
+            </Button>
+          </Stack>
+        </form>
+      </Paper>
     </Togglable>
   );
 };

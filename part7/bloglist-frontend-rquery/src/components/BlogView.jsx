@@ -1,5 +1,17 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import {
+  Paper,
+  Typography,
+  Link,
+  Button,
+  Stack,
+  Divider,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 
 const BlogView = ({ blogsQuery, user, onLike, onDelete, onComment }) => {
   const { id } = useParams();
@@ -33,40 +45,80 @@ const BlogView = ({ blogsQuery, user, onLike, onDelete, onComment }) => {
   };
 
   return (
-    <div>
-      <h2>{blog.title}</h2>
-      <div>
-        <a href={blog.url} target="_blank" rel="noreferrer">
+    <Paper elevation={2} sx={{ p: 3 }}>
+      <Stack spacing={2}>
+        <Typography variant="h4" component="h1">
+          {blog.title}
+        </Typography>
+
+        <Link href={blog.url} target="_blank" rel="noreferrer">
           {blog.url}
-        </a>
-      </div>
-      <div>
-        likes {blog.likes}{" "}
-        <button onClick={() => onLike(blog)}>like</button>
-      </div>
-      <div>added by {addedBy}</div>
-      {canDelete && <button onClick={() => onDelete(blog)}>delete</button>}
-      <h3>comments</h3>
-      {user && (
-        <form onSubmit={handleCommentSubmit}>
-          <input
-            type="text"
-            value={comment}
-            onChange={({ target }) => setComment(target.value)}
-            placeholder="Add a comment"
-          />
-          <button type="submit" disabled={!comment.trim()}>
-            add comment
-          </button>
-        </form>
-      )}
-      {(blog.comments || []).length === 0 && <div>No comments yet</div>}
-      <ul>
-        {(blog.comments || []).map((c, idx) => (
-          <li key={`${c}-${idx}`}>{c}</li>
-        ))}
-      </ul>
-    </div>
+        </Link>
+
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1}
+          alignItems={{ sm: "center" }}
+        >
+          <Typography color="text.secondary">
+            likes {blog.likes}
+          </Typography>
+          <Button variant="contained" size="small" onClick={() => onLike(blog)}>
+            like
+          </Button>
+          {canDelete && (
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={() => onDelete(blog)}
+            >
+              delete
+            </Button>
+          )}
+        </Stack>
+
+        <Typography color="text.secondary">added by {addedBy}</Typography>
+
+        <Divider />
+
+        <Typography variant="h6" component="h2">
+          Comments
+        </Typography>
+
+        {user && (
+          <form onSubmit={handleCommentSubmit}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+              <TextField
+                label="Add a comment"
+                value={comment}
+                onChange={({ target }) => setComment(target.value)}
+                fullWidth
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={!comment.trim()}
+              >
+                add comment
+              </Button>
+            </Stack>
+          </form>
+        )}
+
+        {(blog.comments || []).length === 0 ? (
+          <Typography color="text.secondary">No comments yet</Typography>
+        ) : (
+          <List dense>
+            {(blog.comments || []).map((c, idx) => (
+              <ListItem key={`${c}-${idx}`} disableGutters>
+                <ListItemText primary={c} />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Stack>
+    </Paper>
   );
 };
 
