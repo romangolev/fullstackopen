@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { Card, ListGroup, Badge } from "react-bootstrap";
 import userService from "../services/users";
 
 const normalizeBlogs = (blogs) => {
@@ -70,20 +71,27 @@ const UserView = () => {
   const hasBlogs = blogs.length > 0;
 
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <h3>added blogs</h3>
-      {loading && <p>Loading blogs...</p>}
-      {error && <p>{error}</p>}
-      {!loading && !error && !hasBlogs && <p>No blogs added yet.</p>}
-      {!loading && !error && hasBlogs && (
-        <ul>
-          {blogs.map((blog) => (
-            <li key={blog.id ?? blog.title}>{blog.title}</li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <Card className="shadow-sm">
+      <Card.Header className="bg-white d-flex align-items-center justify-content-between">
+        <Card.Title className="mb-0">{user.name}</Card.Title>
+        <Badge bg="info" text="dark">
+          {user.blogCount ?? user.blogs?.length ?? 0} blogs
+        </Badge>
+      </Card.Header>
+      <Card.Body className="d-grid gap-2">
+        <h5 className="mb-2">Added blogs</h5>
+        {loading && <p className="text-muted mb-0">Loading blogs...</p>}
+        {error && <p className="text-danger mb-0">{error}</p>}
+        {!loading && !error && !hasBlogs && <p className="text-muted mb-0">No blogs added yet.</p>}
+        {!loading && !error && hasBlogs && (
+          <ListGroup variant="flush">
+            {blogs.map((blog) => (
+              <ListGroup.Item key={blog.id ?? blog.title}>{blog.title}</ListGroup.Item>
+            ))}
+          </ListGroup>
+        )}
+      </Card.Body>
+    </Card>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Routes } from "react-router-dom";
+import { Container } from "react-bootstrap";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
@@ -18,7 +19,6 @@ import {
   addCommentToBlog,
 } from "./reducers/blogsSlice";
 import { initializeUser, logoutUser } from "./reducers/userSlice";
-import "./index.css";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -113,36 +113,38 @@ const App = () => {
   return (
     <>
       <Navigation user={user} onLogout={handleLogout} />
-      <h2>blog app</h2>
-      <Notification />
-      <Routes>
-        <Route path="/users" element={<UsersView />} />
-        <Route path="/users/:id" element={<UserView />} />
-        <Route
-          path="/"
-          element={
-            <>
-              {!user && <LoginForm />}
-              {user && <NewBlogForm onCreate={handleCreate} />}
-              <BlogForm
+      <Container className="py-4">
+        <h2 className="mb-3 text-primary fw-semibold">Blog app</h2>
+        <Notification />
+        <Routes>
+          <Route path="/users" element={<UsersView />} />
+          <Route path="/users/:id" element={<UserView />} />
+          <Route
+            path="/"
+            element={
+              <div className="d-grid gap-3">
+                {!user && <LoginForm />}
+                {user && <NewBlogForm onCreate={handleCreate} />}
+                <BlogForm
+                  blogs={blogs}
+                />
+              </div>
+            }
+          />
+          <Route
+            path="/blogs/:id"
+            element={
+              <BlogView
                 blogs={blogs}
+                user={user}
+                onLike={handleLike}
+                onDelete={handleDelete}
+                onAddComment={handleAddComment}
               />
-            </>
-          }
-        />
-        <Route
-          path="/blogs/:id"
-          element={
-            <BlogView
-              blogs={blogs}
-              user={user}
-              onLike={handleLike}
-              onDelete={handleDelete}
-              onAddComment={handleAddComment}
-            />
-          }
-        />
-      </Routes>
+            }
+          />
+        </Routes>
+      </Container>
     </>
   );
 };

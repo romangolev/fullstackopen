@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { Card, Table } from "react-bootstrap";
 
 const UsersView = () => {
   const users = useSelector((state) => state.users);
@@ -9,27 +10,33 @@ const UsersView = () => {
   }
 
   return (
-    <div>
-      <h2>users</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Blogs created</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>
-                <Link to={`/users/${user.id}`}>{user.name}</Link>
-              </td>
-              <td>{user.blogCount ?? user.blogs?.length ?? 0}</td>
+    <Card className="shadow-sm">
+      <Card.Header className="bg-white">
+        <Card.Title className="mb-0 text-capitalize">users</Card.Title>
+      </Card.Header>
+      <Card.Body className="p-0">
+        <Table hover responsive className="mb-0">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Blogs created</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td>
+                  <Link to={`/users/${user.id}`} className="text-decoration-none">
+                    {user.name}
+                  </Link>
+                </td>
+                <td>{user.blogCount ?? user.blogs?.length ?? 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Card.Body>
+    </Card>
   );
 };
 
