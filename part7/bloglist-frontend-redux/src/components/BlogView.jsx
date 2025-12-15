@@ -18,6 +18,7 @@ const BlogView = ({ blogs, user, onLike, onDelete }) => {
   }
 
   const canDelete = blog.user?.name && blog.user.name === user?.name;
+  const comments = Array.isArray(blog.comments) ? blog.comments : [];
 
   return (
     <div>
@@ -33,6 +34,16 @@ const BlogView = ({ blogs, user, onLike, onDelete }) => {
       </div>
       <div>added by {blog.user?.name ?? "Unknown user"}</div>
       {canDelete && <button onClick={() => onDelete(blog)}>delete</button>}
+      <h3>comments</h3>
+      {comments.length ? (
+        <ul>
+          {comments.map((comment, idx) => (
+            <li key={`${blog.id}-comment-${idx}`}>{comment}</li>
+          ))}
+        </ul>
+      ) : (
+        <div>No comments yet.</div>
+      )}
     </div>
   );
 };

@@ -98,6 +98,62 @@ test.only("fetching a single blog returns full details", async () => {
   assert.strictEqual(result.body.likes, newBlog.likes);
 });
 
+test.only("new blog includes empty comments array", async () => {
+  const newBlog = {
+    title: "Blog with comments",
+    author: "Commenter",
+    url: "http://comments.com",
+  };
+
+  const created = await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const fetched = await api
+    .get(`/api/blogs/${created.body.id}`)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+
+  assert.deepStrictEqual(fetched.body.comments, []);
+});
+
+test.only("adding a comment to a blog stores it", async () => {
+  const newBlog = {
+    title: "Blog to comment on",
+    author: "Comment Target",
+    url: "http://commenttarget.com",
+  };
+
+  const created = await api
+    .post("/api/blogs")
+    .set("Authorization", `Bearer ${token}`)
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const commentText = "Great read!";
+
+  const commentResponse = await api
+    .post(`/api/blogs/${created.body.id}/comments`)
+    .send({ comment: commentText })
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  assert.strictEqual(commentResponse.body.comments.length, 1);
+  assert.strictEqual(commentResponse.body.comments[0], commentText);
+
+  const fetched = await api
+    .get(`/api/blogs/${created.body.id}`)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+
+  assert.strictEqual(fetched.body.comments.length, 1);
+  assert.strictEqual(fetched.body.comments[0], commentText);
+});
+
 test.only("verify that post request successfully creates new blogpost", async () => {
   const newblog = {
     title: "Test title",

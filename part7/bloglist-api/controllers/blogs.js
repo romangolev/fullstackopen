@@ -20,7 +20,32 @@ blogsRouter.get("/:id", async (request, response, next) => {
       return response.status(404).json({ error: "blog not found" });
     }
 
+    if (!blog.comments) {
+      blog.comments = [];
+    }
+
     response.json(blog);
+  } catch (error) {
+    next(error);
+  }
+});
+
+blogsRouter.post("/:id/comments", async (request, response, next) => {
+  try {
+    const { comment } = request.body;
+    if (!comment || typeof comment !== "string" || comment.trim() === "") {
+      return response.status(400).json({ error: "comment is required" });
+    }
+
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) {
+      return response.status(404).json({ error: "blog not found" });
+    }
+
+    blog.comments.push(comment);
+    const updatedBlog = await blog.save();
+
+    response.status(201).json(updatedBlog);
   } catch (error) {
     next(error);
   }

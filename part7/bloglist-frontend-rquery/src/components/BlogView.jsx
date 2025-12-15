@@ -36,6 +36,13 @@ const BlogView = ({ blogsQuery, user, onLike, onDelete }) => {
       </div>
       <div>added by {addedBy}</div>
       {canDelete && <button onClick={() => onDelete(blog)}>delete</button>}
+      <h3>comments</h3>
+      {(blog.comments || []).length === 0 && <div>No comments yet</div>}
+      <ul>
+        {(blog.comments || []).map((c, idx) => (
+          <li key={`${c}-${idx}`}>{c}</li>
+        ))}
+      </ul>
     </div>
   );
 };
