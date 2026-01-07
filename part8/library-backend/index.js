@@ -118,6 +118,14 @@ const typeDefs = `
 `
 
 const resolvers = {
+  Author: {
+    bookCount: (root) => {
+      if (!root || !root.name) {
+        return 0
+      }
+      return books.filter((b) => b.author === root.name).length
+    },
+  },
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
@@ -133,6 +141,9 @@ const resolvers = {
     },
     allAuthors: () => {
       const bookCountByAuthor = books.reduce((acc, b) => {
+        if (!b.author) {
+          return acc
+        }
         acc[b.author] = (acc[b.author] || 0) + 1
         return acc
       }, {})
@@ -140,7 +151,7 @@ const resolvers = {
         ...a,
         bookCount: bookCountByAuthor[a.name] || 0,
       }))
-    }
+    },
   },
   Mutation: {
     addBook: (root, args) => {
