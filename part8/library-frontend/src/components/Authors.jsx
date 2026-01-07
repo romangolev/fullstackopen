@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMutation } from '@apollo/client/react'
+import Select from 'react-select'
 import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
 
 const Authors = ({ show, loading, authors }) => {
@@ -15,6 +16,18 @@ const Authors = ({ show, loading, authors }) => {
       setName(authors[0].name)
     }
   }, [authors, name])
+
+  const authorOptions = useMemo(
+    () =>
+      authors.map((author) => ({
+        value: author.name,
+        label: author.name,
+      })),
+    [authors]
+  )
+
+  const selectedAuthor =
+    authorOptions.find((option) => option.value === name) || null
 
   if (!show) {
     return null
@@ -62,13 +75,15 @@ const Authors = ({ show, loading, authors }) => {
       <form onSubmit={submit}>
         <div>
           name
-          <select value={name} onChange={({ target }) => setName(target.value)}>
-            {authors.map((author) => (
-              <option key={author.id} value={author.name}>
-                {author.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            value={selectedAuthor}
+            onChange={(option) => setName(option ? option.value : '')}
+            options={authorOptions}
+            placeholder="Select author"
+            styles={{
+              container: (base) => ({ ...base, width: '200px' }),
+            }}
+          />
         </div>
         <div>
           born
