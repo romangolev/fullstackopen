@@ -5,7 +5,7 @@ import { BOOKS_BY_GENRE } from '../queries'
 const Books = ({ show, loading, books }) => {
   const [selectedGenre, setSelectedGenre] = useState('')
 
-  const { data: filteredData, loading: filteredLoading } = useQuery(
+  const { data: filteredData, loading: filteredLoading, refetch } = useQuery(
     BOOKS_BY_GENRE,
     {
       variables: { genre: selectedGenre || null },
@@ -33,6 +33,11 @@ const Books = ({ show, loading, books }) => {
 
   const visibleBooks = filteredData?.allBooks ?? []
 
+  const handleGenreChange = (genre) => {
+    setSelectedGenre(genre)
+    refetch({ genre: genre || null })
+  }
+
   return (
     <div>
       <h2>books</h2>
@@ -56,11 +61,11 @@ const Books = ({ show, loading, books }) => {
       </table>
       <div>
         {genres.map((genre) => (
-          <button key={genre} onClick={() => setSelectedGenre(genre)}>
+          <button key={genre} onClick={() => handleGenreChange(genre)}>
             {genre}
           </button>
         ))}
-        <button onClick={() => setSelectedGenre('')}>all genres</button>
+        <button onClick={() => handleGenreChange('')}>all genres</button>
       </div>
     </div>
   )
