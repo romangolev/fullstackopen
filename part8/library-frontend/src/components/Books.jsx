@@ -1,7 +1,17 @@
 import { useMemo, useState } from 'react'
+import { useQuery } from '@apollo/client/react'
+import { BOOKS_BY_GENRE } from '../queries'
 
 const Books = ({ show, loading, books }) => {
   const [selectedGenre, setSelectedGenre] = useState('')
+
+  const { data: filteredData, loading: filteredLoading } = useQuery(
+    BOOKS_BY_GENRE,
+    {
+      variables: { genre: selectedGenre || null },
+      skip: !show,
+    }
+  )
 
   const genres = useMemo(() => {
     const genreSet = new Set()
@@ -13,20 +23,15 @@ const Books = ({ show, loading, books }) => {
     return Array.from(genreSet)
   }, [books])
 
-  const filteredBooks = useMemo(() => {
-    if (!selectedGenre) {
-      return books
-    }
-    return books.filter((book) => book.genres?.includes(selectedGenre))
-  }, [books, selectedGenre])
-
   if (!show) {
     return null
   }
 
-  if (loading) {
+  if (loading || filteredLoading) {
     return <div>loading...</div>
   }
+
+  const visibleBooks = filteredData?.allBooks ?? []
 
   return (
     <div>
@@ -40,7 +45,7 @@ const Books = ({ show, loading, books }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {filteredBooks.map((book) => (
+          {visibleBooks.map((book) => (
             <tr key={book.id}>
               <td>{book.title}</td>
               <td>{book.author?.name}</td>
