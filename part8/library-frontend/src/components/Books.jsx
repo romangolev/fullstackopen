@@ -1,4 +1,25 @@
+import { useMemo, useState } from 'react'
+
 const Books = ({ show, loading, books }) => {
+  const [selectedGenre, setSelectedGenre] = useState('')
+
+  const genres = useMemo(() => {
+    const genreSet = new Set()
+    books.forEach((book) => {
+      if (Array.isArray(book.genres)) {
+        book.genres.forEach((genre) => genreSet.add(genre))
+      }
+    })
+    return Array.from(genreSet)
+  }, [books])
+
+  const filteredBooks = useMemo(() => {
+    if (!selectedGenre) {
+      return books
+    }
+    return books.filter((book) => book.genres?.includes(selectedGenre))
+  }, [books, selectedGenre])
+
   if (!show) {
     return null
   }
@@ -10,6 +31,7 @@ const Books = ({ show, loading, books }) => {
   return (
     <div>
       <h2>books</h2>
+      {selectedGenre && <div>in genre {selectedGenre}</div>}
 
       <table>
         <tbody>
@@ -18,7 +40,7 @@ const Books = ({ show, loading, books }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {books.map((book) => (
+          {filteredBooks.map((book) => (
             <tr key={book.id}>
               <td>{book.title}</td>
               <td>{book.author?.name}</td>
@@ -27,6 +49,14 @@ const Books = ({ show, loading, books }) => {
           ))}
         </tbody>
       </table>
+      <div>
+        {genres.map((genre) => (
+          <button key={genre} onClick={() => setSelectedGenre(genre)}>
+            {genre}
+          </button>
+        ))}
+        <button onClick={() => setSelectedGenre('')}>all genres</button>
+      </div>
     </div>
   )
 }
