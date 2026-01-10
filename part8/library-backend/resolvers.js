@@ -1,3 +1,4 @@
+const { GraphQLError } = require('graphql')
 const Author = require('./models/author')
 const Book = require('./models/book')
 
@@ -40,30 +41,70 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      let author = await Author.findOne({ name: args.author })
-      if (!author) {
-        author = new Author({ name: args.author })
-        await author.save()
-      }
+      try {
+        let author = await Author.findOne({ name: args.author })
+        if (!author) {
+          author = new Author({ name: args.author })
+          await author.save()
+        }
 
-      const book = new Book({
-        title: args.title,
-        published: args.published,
-        author: author._id,
-        genres: args.genres,
-      })
-      await book.save()
-      await book.populate('author')
-      return book
+        const book = new Book({
+          title: args.title,
+          published: args.published,
+          author: author._id,
+          genres: args.genres,
+        })
+        await book.save()
+        await book.populate('author')
+        return book
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          throw new GraphQLError(error.message, {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+            },
+          })
+        }
+        if (error.code === 11000) {
+          throw new GraphQLError('Duplicate value violates uniqueness', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+            },
+          })
+        }
+        throw error
+      }
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name })
       if (!author) {
         return null
       }
-      author.born = args.setBornTo
-      await author.save()
-      return author
+      try {
+        author.born = args.setBornTo
+        await author.save()
+        return author
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          throw new GraphQLError(error.message, {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+            },
+          })
+        }
+        if (error.code === 11000) {
+          throw new GraphQLError('Duplicate value violates uniqueness', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+            },
+          })
+        }
+        throw error
+      }
     },
   },
 }
