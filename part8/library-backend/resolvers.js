@@ -3,7 +3,13 @@ const Book = require('./models/book')
 
 const resolvers = {
   Author: {
-    bookCount: async (root) => Book.countDocuments({ author: root._id }),
+    bookCount: async (root) => {
+      const authorId = root._id || root.id
+      if (!authorId) {
+        return 0
+      }
+      return Book.countDocuments({ author: authorId })
+    },
   },
   Book: {
     author: async (root) => {
@@ -30,7 +36,7 @@ const resolvers = {
       }
       return Book.find(filter).populate('author')
     },
-    allAuthors: () => Author.find({}),
+    allAuthors: async () => Author.find({}),
   },
   Mutation: {
     addBook: async (root, args) => {
