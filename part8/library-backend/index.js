@@ -1,5 +1,12 @@
 const { ApolloServer } = require('@apollo/server')
-const { startStandaloneServer } = require('@apollo/server/standalone')
+const { expressMiddleware } = require('@apollo/server/express4')
+const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
+const cors = require('cors')
+const express = require('express')
+const http = require('http')
+const { WebSocketServer } = require('ws')
+const { useServer } = require('graphql-ws/lib/use/ws')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const typeDefs = require('./schema')
@@ -23,26 +30,71 @@ if (!JWT_SECRET) {
 
 mongoose.set('strictQuery', false)
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-})
+const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+const getUserFromAuthHeader = async (authorization) => {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return null
+  }
+  const decoded = jwt.verify(authorization.substring(7), JWT_SECRET)
+  return User.findById(decoded.id)
+}
 
 const start = async () => {
   await mongoose.connect(MONGODB_URI)
-  const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-    context: async ({ req }) => {
-      const auth = req?.headers?.authorization
-      if (auth && auth.startsWith('Bearer ')) {
-        const decoded = jwt.verify(auth.substring(7), JWT_SECRET)
-        const currentUser = await User.findById(decoded.id)
-        return { currentUser }
-      }
-      return { currentUser: null }
-    },
+
+  const app = express()
+  const httpServer = http.createServer(app)
+
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/',
   })
-  console.log(`Server ready at ${url}`)
+
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: async (ctx) => {
+        const authorization = ctx.connectionParams?.authorization
+        const currentUser = await getUserFromAuthHeader(authorization)
+        return { currentUser }
+      },
+    },
+    wsServer
+  )
+
+  const server = new ApolloServer({
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose()
+            },
+          }
+        },
+      },
+    ],
+  })
+
+  await server.start()
+
+  app.use(
+    '/',
+    cors(),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req }) => ({
+        currentUser: await getUserFromAuthHeader(req?.headers?.authorization),
+      }),
+    })
+  )
+
+  httpServer.listen({ port: 4000 }, () => {
+    console.log('Server ready at http://localhost:4000/')
+  })
 }
 
 start().catch((error) => {

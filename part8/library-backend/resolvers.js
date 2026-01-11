@@ -1,8 +1,11 @@
 const { GraphQLError } = require('graphql')
 const jwt = require('jsonwebtoken')
+const { PubSub } = require('graphql-subscriptions')
 const Author = require('./models/author')
 const Book = require('./models/book')
 const User = require('./models/user')
+
+const pubsub = new PubSub()
 
 const resolvers = {
   Author: {
@@ -66,6 +69,7 @@ const resolvers = {
         })
         await book.save()
         await book.populate('author')
+        pubsub.publish('BOOK_ADDED', { bookAdded: book })
         return book
       } catch (error) {
         if (error.name === 'ValidationError') {
@@ -164,6 +168,11 @@ const resolvers = {
         id: user._id,
       }
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator('BOOK_ADDED'),
     },
   },
 }
