@@ -5,7 +5,45 @@ import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Recommendations from './components/Recommendations'
 import { useApolloClient, useQuery, useSubscription } from '@apollo/client/react'
-import { ALL_AUTHORS, ALL_BOOKS, BOOK_ADDED } from './queries'
+import { ALL_AUTHORS, ALL_BOOKS, BOOK_ADDED, BOOKS_BY_GENRE } from './queries'
+
+const updateCache = (cache, addedBook) => {
+  const uniqueById = (books) => {
+    const seen = new Set()
+    return books.filter((book) => {
+      if (seen.has(book.id)) {
+        return false
+      }
+      seen.add(book.id)
+      return true
+    })
+  }
+
+  const updateBookQuery = (variables) => {
+    cache.updateQuery({ query: BOOKS_BY_GENRE, variables }, (data) => {
+      if (!data) {
+        return data
+      }
+      return {
+        allBooks: uniqueById(data.allBooks.concat(addedBook)),
+      }
+    })
+  }
+
+  cache.updateQuery({ query: ALL_BOOKS }, (data) => {
+    if (!data) {
+      return data
+    }
+    return {
+      allBooks: uniqueById(data.allBooks.concat(addedBook)),
+    }
+  })
+
+  updateBookQuery({ genre: null })
+  if (Array.isArray(addedBook.genres)) {
+    addedBook.genres.forEach((genre) => updateBookQuery({ genre }))
+  }
+}
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -26,6 +64,7 @@ const App = () => {
       window.alert(
         `New book added: ${addedBook.title} by ${addedBook.author.name}`
       )
+      updateCache(client.cache, addedBook)
     },
   })
 
