@@ -1,5 +1,4 @@
 const { ApolloServer } = require('@apollo/server')
-const { expressMiddleware } = require('@apollo/server/express4')
 const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer')
 const { makeExecutableSchema } = require('@graphql-tools/schema')
 const cors = require('cors')
@@ -31,6 +30,24 @@ if (!JWT_SECRET) {
 mongoose.set('strictQuery', false)
 
 const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+class HeaderMap extends Map {
+  set(key, value) {
+    return super.set(key.toLowerCase(), value)
+  }
+
+  get(key) {
+    return super.get(key.toLowerCase())
+  }
+
+  delete(key) {
+    return super.delete(key.toLowerCase())
+  }
+
+  has(key) {
+    return super.has(key.toLowerCase())
+  }
+}
 
 const getUserFromAuthHeader = async (authorization) => {
   if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -81,16 +98,51 @@ const start = async () => {
 
   await server.start()
 
-  app.use(
-    '/',
-    cors(),
-    express.json(),
-    expressMiddleware(server, {
-      context: async ({ req }) => ({
-        currentUser: await getUserFromAuthHeader(req?.headers?.authorization),
-      }),
-    })
-  )
+  app.use('/', cors(), express.json(), async (req, res) => {
+    const headers = new HeaderMap()
+    for (const [key, value] of Object.entries(req.headers)) {
+      if (value !== undefined) {
+        headers.set(key, Array.isArray(value) ? value.join(', ') : value)
+      }
+    }
+
+    const requestUrl = new URL(req.originalUrl ?? req.url, 'http://localhost')
+    const httpGraphQLRequest = {
+      method: req.method.toUpperCase(),
+      headers,
+      search: requestUrl.search ?? '',
+      body: req.body ?? undefined,
+    }
+
+    try {
+      const httpGraphQLResponse = await server.executeHTTPGraphQLRequest({
+        httpGraphQLRequest,
+        context: async () => ({
+          currentUser: await getUserFromAuthHeader(req?.headers?.authorization),
+        }),
+      })
+
+      for (const [key, value] of httpGraphQLResponse.headers) {
+        res.setHeader(key, value)
+      }
+
+      res.status(httpGraphQLResponse.status || 200)
+
+      if (httpGraphQLResponse.body.kind === 'complete') {
+        res.send(httpGraphQLResponse.body.string)
+        return
+      }
+
+      for await (const chunk of httpGraphQLResponse.body.asyncIterator) {
+        res.write(chunk)
+      }
+
+      res.end()
+    } catch (error) {
+      console.error('GraphQL request failed', error)
+      res.status(500).send('Internal server error')
+    }
+  })
 
   httpServer.listen({ port: 4000 }, () => {
     console.log('Server ready at http://localhost:4000/')
