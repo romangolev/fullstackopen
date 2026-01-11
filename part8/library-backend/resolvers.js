@@ -10,6 +10,9 @@ const pubsub = new PubSub()
 const resolvers = {
   Author: {
     bookCount: async (root) => {
+      if (root.bookCount !== undefined && root.bookCount !== null) {
+        return root.bookCount
+      }
       const authorId = root._id || root.id
       if (!authorId) {
         return 0
@@ -42,7 +45,32 @@ const resolvers = {
       }
       return Book.find(filter).populate('author')
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => {
+      const [authors, counts] = await Promise.all([
+        Author.find({}),
+        Book.aggregate([
+          {
+            $group: {
+              _id: '$author',
+              count: { $sum: 1 },
+            },
+          },
+        ]),
+      ])
+
+      const countMap = counts.reduce((accumulator, entry) => {
+        accumulator[entry._id.toString()] = entry.count
+        return accumulator
+      }, {})
+
+      return authors.map((author) => {
+        const authorObject = author.toObject()
+        return {
+          ...authorObject,
+          bookCount: countMap[authorObject._id.toString()] ?? 0,
+        }
+      })
+    },
     me: (root, args, context) => context.currentUser,
   },
   Mutation: {
