@@ -8,7 +8,7 @@ interface Result {
   average: number
 }
 
-const calculateExercises = (dailyHours: number[], target: number): Result => {
+export const calculateExercises = (dailyHours: number[], target: number): Result => {
   const periodLength = dailyHours.length;
   const trainingDays = dailyHours.filter(h => h > 0).length;
   const average = dailyHours.reduce((sum, h) => sum + h, 0) / periodLength;
@@ -41,12 +41,14 @@ const calculateExercises = (dailyHours: number[], target: number): Result => {
   };
 };
 
-const dailyHours = process.argv.slice(2, -1)
-                    .map(arg => Number(arg));
-const target = Number(process.argv[process.argv.length - 1]);
+if (require.main === module) {
+  const dailyHours = process.argv.slice(2, -1)
+                      .map(arg => Number(arg));
+  const target = Number(process.argv[process.argv.length - 1]);
 
-if (isNaN(target) || dailyHours.some(h => isNaN(h))) {
-  console.log('Please provide valid numbers for target and daily hours.');
-} else {
-  console.log(calculateExercises(dailyHours, target));
+  if (isNaN(target) || dailyHours.some(h => isNaN(h))) {
+    console.log('Please provide valid numbers for target and daily hours.');
+  } else {
+    console.log(calculateExercises(dailyHours, target));
+  }
 }
